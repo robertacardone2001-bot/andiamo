@@ -10,61 +10,67 @@
   <meta property="og:type" content="website" />
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='0.9em' font-size='90'%3E%E2%9D%A4%EF%B8%8F%3C/text%3E%3C/svg%3E">
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-  <style>
-:root{
+  <style>:root{
   --bg1:#f4f4eb;   /* beige/oliva molto chiaro */
   --bg2:#e9eddb;   /* verde oliva chiarissimo */
-  --card:#ffffff;  /* sfondo card bianco */
+  --card:#ffffff;
   --ink:#2f3120;   /* testo oliva scuro */
   --muted:#6b705c; /* grigio/verde smorzato */
   --accent:#6b8e23; /* verde oliva */
   --accent-2:#a4b97f; /* oliva chiaro caldo */
-  --ring:rgba(107,142,35,.25); /* alone verde oliva */
+  --ring:rgba(107,142,35,.25);
 }
 
-    html,body{height:100%}
-    body{
-      margin:0; padding:0;
-      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Apple Color Emoji","Segoe UI Emoji";
-      color:var(--ink);
-      background: radial-gradient(1200px 800px at 20% -10%, var(--bg1), transparent),
-                  radial-gradient(1200px 800px at 100% 20%, var(--bg2), transparent),
-                  linear-gradient(180deg, #ffffff 0%, #fff5f7 60%, #ffeef2 100%);
-      background-attachment: fixed;
-    }
-    .wrap{max-width:960px; margin:0 auto; padding:32px 20px 64px}
-    header{display:flex; flex-direction:column; gap:10px; align-items:center; text-align:center;}
-    .badge{display:inline-flex; align-items:center; gap:6px; padding:6px 10px; font-size:12px; border-radius:999px; background:rgba(225,29,72,.08); color:#9f1239;}
-    .title{font-family: "Playfair Display", serif; font-weight:700; font-size: clamp(28px, 6vw, 48px); letter-spacing:.2px; margin:4px 0 0}
-    .subtitle{color:var(--muted); font-size:14px}
-    .card{
-      margin-top:22px; background:var(--card); border-radius:20px; padding:22px; box-shadow:0 10px 30px rgba(225,29,72,.08), 0 2px 12px rgba(0,0,0,.06);
-      border:1px solid rgba(225,29,72,.08);
-    }
-    .hero{display:flex; gap:18px; align-items:center; justify-content:center; flex-wrap:wrap}
-    .hero .heart{font-size:28px}
-    .hero p{margin:0; font-size:15px; color:#7c2035}
+html,body{height:100%}
+body{
+  margin:0; padding:0;
+  font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Apple Color Emoji","Segoe UI Emoji";
+  color:var(--ink);
+  background: radial-gradient(1200px 800px at 20% -10%, var(--bg1), transparent),
+              radial-gradient(1200px 800px at 100% 20%, var(--bg2), transparent),
+              linear-gradient(180deg, #ffffff 0%, #f5f7ef 60%, #edf1e3 100%);
+  background-attachment: fixed;
+}
+.wrap{max-width:960px; margin:0 auto; padding:32px 20px 64px}
+header{display:flex; flex-direction:column; gap:10px; align-items:center; text-align:center;}
+.badge{display:inline-flex; align-items:center; gap:6px; padding:6px 10px; font-size:12px; border-radius:999px; background:rgba(107,142,35,.08); color:#374619;}
+.title{font-family: "Playfair Display", serif; font-weight:700; font-size: clamp(28px, 6vw, 48px); letter-spacing:.2px; margin:4px 0 0}
+.subtitle{color:var(--muted); font-size:14px}
+.card{
+  margin-top:22px; background:var(--card); border-radius:20px; padding:22px;
+  box-shadow:0 10px 30px rgba(107,142,35,.08), 0 2px 12px rgba(0,0,0,.06);
+  border:1px solid rgba(107,142,35,.08);
+}
+.hero{display:flex; gap:18px; align-items:center; justify-content:center; flex-wrap:wrap}
+.hero .heart{font-size:28px}
+.hero p{margin:0; font-size:15px; color:#3e4422}
 
-    .grid{display:grid; grid-template-columns: 1fr; gap:12px; margin-top:20px}
-    @media (min-width:680px){ .grid{ grid-template-columns: 1fr 1fr; } }
+.grid{display:grid; grid-template-columns: 1fr; gap:12px; margin-top:20px}
+@media (min-width:680px){ .grid{ grid-template-columns: 1fr 1fr; } }
 
-    .chapter{
-      position:relative; border:1px solid rgba(225,29,72,.12); background:#fff; border-radius:16px; padding:14px 14px 12px 16px; display:flex; flex-direction:column; gap:8px;
-      transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
-    }
-    .chapter:hover{ transform: translateY(-2px); box-shadow:0 10px 18px rgba(225,29,72,.10); border-color: rgba(225,29,72,.25); }
-    .row{display:flex; align-items:center; gap:12px;}
-    .num{width:30px; height:30px; border-radius:999px; background:linear-gradient(180deg, #fecdd3, #fda4af); display:inline-flex; align-items:center; justify-content:center; font-weight:700; font-size:14px; color:#7c2035; box-shadow: inset 0 1px 0 #fff;}
-    .ctitle{font-weight:600; font-size:15px}
-    audio{ width:100%; outline:none; accent-color: var(--accent); }
-    .done{ border-color: rgba(34,197,94,.35); }
-    .tick{ position:absolute; top:10px; right:10px; font-size:12px; padding:4px 8px; border-radius:999px; background:rgba(34,197,94,.12); color:#166534; display:none; }
-    .chapter.done .tick{ display:inline-flex; }
-    .footer{ margin-top:30px; text-align:center; font-size:12px; color:var(--muted); }
-    .footer a{ color:#be123c; text-decoration: none; border-bottom:1px dotted rgba(190,18,60,.5) }
-    details.howto{ margin-top:18px; }
-    details summary{ cursor:pointer; color:#9f1239; font-weight:600 }
-    code{ background:#fff1f5; padding:2px 6px; border-radius:6px; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+.chapter{
+  position:relative; border:1px solid rgba(107,142,35,.12); background:#fff;
+  border-radius:16px; padding:14px 14px 12px 16px; display:flex; flex-direction:column; gap:8px;
+  transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+}
+.chapter:hover{ transform: translateY(-2px); box-shadow:0 10px 18px rgba(107,142,35,.10); border-color: rgba(107,142,35,.25); }
+.row{display:flex; align-items:center; gap:12px;}
+.num{width:30px; height:30px; border-radius:999px;
+  background:linear-gradient(180deg, #d6dec1, #a4b97f);
+  display:inline-flex; align-items:center; justify-content:center;
+  font-weight:700; font-size:14px; color:#2f3120; box-shadow: inset 0 1px 0 #fff;
+}
+.ctitle{font-weight:600; font-size:15px}
+audio{ width:100%; outline:none; accent-color: var(--accent); }
+.done{ border-color: rgba(34,197,94,.35); }
+.tick{ position:absolute; top:10px; right:10px; font-size:12px; padding:4px 8px; border-radius:999px; background:rgba(34,197,94,.12); color:#166534; display:none; }
+.chapter.done .tick{ display:inline-flex; }
+.footer{ margin-top:30px; text-align:center; font-size:12px; color:var(--muted); }
+.footer a{ color:#374619; text-decoration: none; border-bottom:1px dotted rgba(55,70,25,.5) }
+details.howto{ margin-top:18px; }
+details summary{ cursor:pointer; color:#374619; font-weight:600 }
+code{ background:#f4f4eb; padding:2px 6px; border-radius:6px; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+
   </style>
   <!--
   COME AGGIUNGERE I TUOI CAPITOLI
