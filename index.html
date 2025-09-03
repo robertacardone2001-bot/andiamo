@@ -60,19 +60,81 @@ header{display:flex; flex-direction:column; gap:10px; align-items:center; text-a
   display:inline-flex; align-items:center; justify-content:center;
   font-weight:700; font-size:14px; color:#2f3120; box-shadow: inset 0 1px 0 #fff;
 }
-.ctitle{font-weight:600; font-size:15px}
-audio{ width:100%; outline:none; accent-color: var(--accent); }
-.done{ border-color: rgba(34,197,94,.35); }
-.tick{ position:absolute; top:10px; right:10px; font-size:12px; padding:4px 8px; border-radius:999px; background:rgba(34,197,94,.12); color:#166534; display:none; }
-.chapter.done .tick{ display:inline-flex; }
-.footer{ margin-top:30px; text-align:center; font-size:12px; color:var(--muted); }
-.footer a{ color:#374619; text-decoration: none; border-bottom:1px dotted rgba(55,70,25,.5) }
-details.howto{ margin-top:18px; }
-details summary{ cursor:pointer; color:#374619; font-weight:600 }
-code{ background:#f4f4eb; padding:2px 6px; border-radius:6px; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+.ctitle {
+  font-weight:600;
+  font-size:15px
+}
+
+audio {
+  width:100%;
+  outline:none;
+  accent-color: var(--accent);
+}
+
+.done {
+  border-color: rgba(34,197,94,.35);
+}
+
+.tick {
+  position:absolute;
+  top:10px;
+  right:10px;
+  font-size:12px;
+  padding:4px 8px;
+  border-radius:999px;
+  background:rgba(34,197,94,.12);
+  color:#166534;
+  display:none;
+}
+
+.chapter.done .tick {
+  display:inline-flex;
+}
+
+.footer {
+  margin-top:30px;
+  text-align:center;
+  font-size:12px;
+  color:var(--muted);
+}
+
+.footer a {
+  color:#374619;
+  text-decoration: none;
+  border-bottom:1px dotted rgba(55,70,25,.5)
+}
+
+details.howto {
+  margin-top:18px;
+}
+
+details summary {
+  cursor:pointer;
+  color:#374619;
+  font-weight:600
+}
+
+code {
+  background:#f4f4eb;
+  padding:2px 6px;
+  border-radius:6px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+/* verde scuro: capitolo in ascolto */
 .chapter.playing {
-      background-color: #38761D; /* verde scuro capitolo in ascolto */
-      color: #ffffff; /* testo bianco sopra verde scuro */
+  background-color: #38761D;
+  color: #ffffff;
+}
+
+/* verde medio: capitolo già ascoltato */
+.chapter.done {
+  background-color: #9caf88;
+  color: #1a1a1a;
+}
+
+}
+
     }
     
   </style>
@@ -205,6 +267,29 @@ code{ background:#f4f4eb; padding:2px 6px; border-radius:6px; font-family: ui-mo
     grid.appendChild(card);
     audios.push(audio);
   });
+  audio.addEventListener('play', () => {
+  // Togli solo lo stato "playing" dagli altri
+  audios.forEach(a => {
+    if(a !== audio){
+      a.pause();
+      a.parentElement.classList.remove('playing');
+    }
+  });
+  card.classList.add('playing');
+});
+
+audio.addEventListener('ended', () => {
+  // Quando finisce: segna come "già ascoltato"
+  localStorage.setItem(`listened::${c.file}`, '1');
+  card.classList.remove('playing');
+  card.classList.add('done');
+});
+
+// All’avvio: controlla se già ascoltato
+if (localStorage.getItem(`listened::${c.file}`) === '1') {
+  card.classList.add('done');
+}
+
 </script>
 
 
