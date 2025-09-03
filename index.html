@@ -1,1 +1,192 @@
-<h1>Ciao amore ❤️</h1>
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Per Amore — Capitoli Audio</title>
+  <meta name="description" content="Una raccolta di capitoli audio letti con il cuore." />
+  <meta property="og:title" content="Per Amore — Capitoli Audio" />
+  <meta property="og:description" content="Una raccolta di capitoli audio letti con il cuore." />
+  <meta property="og:type" content="website" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='0.9em' font-size='90'%3E%E2%9D%A4%EF%B8%8F%3C/text%3E%3C/svg%3E">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg1:#fff1f5; /* rosa chiarissimo */
+      --bg2:#ffe4e6; /* rosa luce */
+      --card:#ffffff;
+      --ink:#2a2438; /* inchiostro morbido */
+      --muted:#6b7280;
+      --accent:#e11d48; /* rosa/rosso */
+      --accent-2:#fb7185; /* rosa caldo */
+      --ring:rgba(225,29,72,.25);
+    }
+    html,body{height:100%}
+    body{
+      margin:0; padding:0;
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      color:var(--ink);
+      background: radial-gradient(1200px 800px at 20% -10%, var(--bg1), transparent),
+                  radial-gradient(1200px 800px at 100% 20%, var(--bg2), transparent),
+                  linear-gradient(180deg, #ffffff 0%, #fff5f7 60%, #ffeef2 100%);
+      background-attachment: fixed;
+    }
+    .wrap{max-width:960px; margin:0 auto; padding:32px 20px 64px}
+    header{display:flex; flex-direction:column; gap:10px; align-items:center; text-align:center;}
+    .badge{display:inline-flex; align-items:center; gap:6px; padding:6px 10px; font-size:12px; border-radius:999px; background:rgba(225,29,72,.08); color:#9f1239;}
+    .title{font-family: "Playfair Display", serif; font-weight:700; font-size: clamp(28px, 6vw, 48px); letter-spacing:.2px; margin:4px 0 0}
+    .subtitle{color:var(--muted); font-size:14px}
+    .card{
+      margin-top:22px; background:var(--card); border-radius:20px; padding:22px; box-shadow:0 10px 30px rgba(225,29,72,.08), 0 2px 12px rgba(0,0,0,.06);
+      border:1px solid rgba(225,29,72,.08);
+    }
+    .hero{display:flex; gap:18px; align-items:center; justify-content:center; flex-wrap:wrap}
+    .hero .heart{font-size:28px}
+    .hero p{margin:0; font-size:15px; color:#7c2035}
+
+    .grid{display:grid; grid-template-columns: 1fr; gap:12px; margin-top:20px}
+    @media (min-width:680px){ .grid{ grid-template-columns: 1fr 1fr; } }
+
+    .chapter{
+      position:relative; border:1px solid rgba(225,29,72,.12); background:#fff; border-radius:16px; padding:14px 14px 12px 16px; display:flex; flex-direction:column; gap:8px;
+      transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+    }
+    .chapter:hover{ transform: translateY(-2px); box-shadow:0 10px 18px rgba(225,29,72,.10); border-color: rgba(225,29,72,.25); }
+    .row{display:flex; align-items:center; gap:12px;}
+    .num{width:30px; height:30px; border-radius:999px; background:linear-gradient(180deg, #fecdd3, #fda4af); display:inline-flex; align-items:center; justify-content:center; font-weight:700; font-size:14px; color:#7c2035; box-shadow: inset 0 1px 0 #fff;}
+    .ctitle{font-weight:600; font-size:15px}
+    audio{ width:100%; outline:none; accent-color: var(--accent); }
+    .done{ border-color: rgba(34,197,94,.35); }
+    .tick{ position:absolute; top:10px; right:10px; font-size:12px; padding:4px 8px; border-radius:999px; background:rgba(34,197,94,.12); color:#166534; display:none; }
+    .chapter.done .tick{ display:inline-flex; }
+    .footer{ margin-top:30px; text-align:center; font-size:12px; color:var(--muted); }
+    .footer a{ color:#be123c; text-decoration: none; border-bottom:1px dotted rgba(190,18,60,.5) }
+    details.howto{ margin-top:18px; }
+    details summary{ cursor:pointer; color:#9f1239; font-weight:600 }
+    code{ background:#fff1f5; padding:2px 6px; border-radius:6px; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+  </style>
+  <!--
+  COME AGGIUNGERE I TUOI CAPITOLI
+  1) Metti i tuoi file .mp3 nella cartella /audio del repository GitHub (vedi guida nel messaggio accanto).
+  2) Sotto trovi l'array "chapters": modifica l'elenco mantenendo lo schema { title: "Titolo", file: "NOMEFILE.mp3" }.
+  3) NON usare spazi o lettere maiuscole nei nomi dei file; esempio: 01-introduzione.mp3
+  4) Carica/sostituisci i file su GitHub: il sito si aggiornerà da solo.
+  -->
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <span class="badge" aria-label="Un regalo per te">❤️ Un regalo con la mia voce</span>
+      <h1 class="title">Per <span id="her-name">Amore</span></h1>
+      <p class="subtitle">Capitoli da ascoltare quando vuoi. Premi play e chiudi gli occhi ✨</p>
+    </header>
+
+    <section class="card hero" aria-label="Presentazione">
+      <div class="heart" aria-hidden="true">💌</div>
+      <p>Ho letto questo libro pensando a te. Spero che queste parole ti facciano compagnia.</p>
+    </section>
+
+    <section class="card" aria-label="Elenco capitoli">
+      <div class="grid" id="chapters"></div>
+    </section>
+
+    <details class="howto">
+      <summary>Come aggiungere o rinominare i capitoli (leggi se stai modificando il sito)</summary>
+      <div class="card" style="margin-top:12px">
+        <ol>
+          <li>Carica i file .mp3 nella cartella <code>audio</code> del repository.</li>
+          <li>Apri questo file <code>index.html</code> e aggiorna l'elenco <code>chapters</code> qui sotto.</li>
+          <li>Salva/committa. Finito ✅</li>
+        </ol>
+      </div>
+    </details>
+
+    <p class="footer">Con ❤️ — <span id="footer-name">Per Amore</span></p>
+  </div>
+
+  <script>
+    // === PERSONALIZZA QUI IL NOME DELLA TUA RAGAZZA ===
+    const herName = "Amore"; // es. "Giulia" (solo testo)
+
+    // === ELENCO CAPITOLI ===
+    // Sostituisci con i tuoi file nella cartella /audio (stesso repo)
+    // Esempio:
+    // { title: "Capitolo 1 — L'inizio", file: "01-inizio.mp3" }
+    const chapters = [
+      { title: "Capitolo 1 — L'inizio", file: "01-inizio.mp3" },
+      { title: "Capitolo 2 — Il viaggio", file: "02-viaggio.mp3" },
+      { title: "Capitolo 3 — La promessa", file: "03-promessa.mp3" }
+    ];
+
+    // === NON TOCCARE SOTTO QUESTA RIGA (logica della pagina) ===
+    document.title = `Per ${herName} — Capitoli Audio`;
+    document.getElementById('her-name').textContent = herName;
+    document.getElementById('footer-name').textContent = `Per ${herName}`;
+
+    const grid = document.getElementById('chapters');
+
+    function formatNum(n){ return n.toString().padStart(2,'0'); }
+
+    const listenedKey = (file) => `listened::${file}`;
+
+    const audios = [];
+
+    chapters.forEach((c, i) => {
+      const card = document.createElement('div');
+      card.className = 'chapter';
+
+      const top = document.createElement('div');
+      top.className = 'row';
+
+      const num = document.createElement('span');
+      num.className = 'num';
+      num.textContent = formatNum(i+1);
+
+      const title = document.createElement('div');
+      title.className = 'ctitle';
+      title.textContent = c.title;
+
+      const tick = document.createElement('span');
+      tick.className = 'tick';
+      tick.textContent = '✓ Ascoltato';
+
+      top.appendChild(num);
+      top.appendChild(title);
+      card.appendChild(top);
+      card.appendChild(tick);
+
+      const audio = document.createElement('audio');
+      audio.setAttribute('controls','');
+      audio.setAttribute('preload','none');
+
+      const source = document.createElement('source');
+      source.src = `audio/${c.file}`;
+      source.type = 'audio/mpeg';
+      audio.appendChild(source);
+
+      // Pausa gli altri quando uno parte
+      audio.addEventListener('play', () => {
+        audios.forEach(a => { if(a !== audio){ a.pause(); } });
+      });
+
+      // Segna come ascoltato quando termina
+      audio.addEventListener('ended', () => {
+        try { localStorage.setItem(listenedKey(c.file), '1'); } catch(e){}
+        card.classList.add('done');
+      });
+
+      // Stato salvato
+      try {
+        if(localStorage.getItem(listenedKey(c.file)) === '1'){
+          card.classList.add('done');
+        }
+      } catch(e){}
+
+      card.appendChild(audio);
+      grid.appendChild(card);
+      audios.push(audio);
+    });
+  </script>
+</body>
+</html>
+
