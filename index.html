@@ -118,6 +118,44 @@ code{ background:#f4f4eb; padding:2px 6px; border-radius:6px; font-family: ui-mo
     { title: "Capitolo 7", file: "07-Capitolo-7.mp3" }
   ];
 
+
+  // === CARICAMENTO CAPITOLI ===
+  const grid = document.getElementById('chapters');
+  chapters.forEach((c, i) => {
+    const card = document.createElement('div');
+    card.className = 'chapter';
+
+    const title = document.createElement('div');
+    title.className = 'ctitle';
+    title.textContent = c.title;
+
+    const audio = document.createElement('audio');
+    audio.setAttribute('controls', '');
+    audio.setAttribute('preload', 'none');
+
+    const source = document.createElement('source');
+    source.src = `audio/${c.file}`;
+    source.type = 'audio/mpeg';
+    audio.appendChild(source);
+
+    // Verifica se il capitolo è già stato ascoltato
+    if (localStorage.getItem(`listened::${c.file}`) === '1') {
+      card.classList.add('done');
+    }
+
+    // Aggiungi evento per segnare come ascoltato
+    audio.addEventListener('ended', () => {
+      localStorage.setItem(`listened::${c.file}`, '1');
+      card.classList.add('done');
+    });
+
+    card.appendChild(title);
+    card.appendChild(audio);
+    grid.appendChild(card);
+  });
+</script>
+
+
   // === NON TOCCARE SOTTO QUESTA RIGA ===
   document.title = `Per ${herName} — Capitoli Audio`;
   document.getElementById('her-name').textContent = herName;
