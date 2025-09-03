@@ -111,89 +111,82 @@ code{ background:#f4f4eb; padding:2px 6px; border-radius:6px; font-family: ui-mo
     <p class="footer">Con ❤️ — <span id="footer-name">Per Amore</span></p>
   </div>
 
-  <script>
-    // === PERSONALIZZA QUI IL NOME DELLA TUA RAGAZZA ===
-    const herName = "Margherita"; // es. "Giulia" (solo testo)
+ <script>
+  // === PERSONALIZZA QUI IL NOME DELLA TUA RAGAZZA ===
+  const herName = "Amore"; // es. "Giulia"
 
-    // === ELENCO CAPITOLI ===
-    // Sostituisci con i tuoi file nella cartella /audio (stesso repo)
-    // Esempio:
-    // { title: "Capitolo 1 — L'inizio", file: "Capitolo-1.mp3" }
-    const chapters = [
-      { title: "Capitolo 1 - 1", file: "01-Capitolo-1.mp3" },
-      { title: "Capitolo 2 - 2", file: "02-Capitolo-2.mp3" },
-      { title: "Capitolo 3 - 3", file: "03-Capitolo-3.mp3" }
-    ];
+  // === ELENCO CAPITOLI ===
+  // Ogni capitolo deve avere un titolo e il nome del file audio corrispondente
+  const chapters = [
+    { title: "Capitolo 1 - Introduzione", file: "01-Capitolo-1.mp3" },
+    { title: "Capitolo 2 - Il viaggio", file: "02-Capitolo-2.mp3" },
+    { title: "Capitolo 3 - La promessa", file: "03-Capitolo-3.mp3" }
+  ];
 
-    // === NON TOCCARE SOTTO QUESTA RIGA (logica della pagina) ===
-    document.title = `Per ${herName} — Capitoli Audio`;
-    document.getElementById('her-name').textContent = herName;
-    document.getElementById('footer-name').textContent = `Per ${herName}`;
+  // === NON TOCCARE SOTTO QUESTA RIGA ===
+  document.title = `Per ${herName} — Capitoli Audio`;
+  document.getElementById('her-name').textContent = herName;
+  document.getElementById('footer-name').textContent = `Per ${herName}`;
 
-    const grid = document.getElementById('chapters');
+  const grid = document.getElementById('chapters');
+  function formatNum(n){ return n.toString().padStart(2,'0'); }
+  const listenedKey = (file) => `listened::${file}`;
+  const audios = [];
 
-    function formatNum(n){ return n.toString().padStart(2,'0'); }
+  chapters.forEach((c, i) => {
+    const card = document.createElement('div');
+    card.className = 'chapter';
 
-    const listenedKey = (file) => `listened::${file}`;
+    const top = document.createElement('div');
+    top.className = 'row';
 
-    const audios = [];
+    const num = document.createElement('span');
+    num.className = 'num';
+    num.textContent = formatNum(i+1);
 
-    chapters.forEach((c, i) => {
-      const card = document.createElement('div');
-      card.className = 'chapter';
+    const title = document.createElement('div');
+    title.className = 'ctitle';
+    title.textContent = c.title;
 
-      const top = document.createElement('div');
-      top.className = 'row';
+    const tick = document.createElement('span');
+    tick.className = 'tick';
+    tick.textContent = '✓ Ascoltato';
 
-      const num = document.createElement('span');
-      num.className = 'num';
-      num.textContent = formatNum(i+1);
+    top.appendChild(num);
+    top.appendChild(title);
+    card.appendChild(top);
+    card.appendChild(tick);
 
-      const title = document.createElement('div');
-      title.className = 'ctitle';
-      title.textContent = c.title;
+    const audio = document.createElement('audio');
+    audio.setAttribute('controls','');
+    audio.setAttribute('preload','none');
 
-      const tick = document.createElement('span');
-      tick.className = 'tick';
-      tick.textContent = '✓ Ascoltato';
+    const source = document.createElement('source');
+    source.src = `audio/${c.file}`;
+    source.type = 'audio/mpeg';
+    audio.appendChild(source);
 
-      top.appendChild(num);
-      top.appendChild(title);
-      card.appendChild(top);
-      card.appendChild(tick);
-
-      const audio = document.createElement('audio');
-      audio.setAttribute('controls','');
-      audio.setAttribute('preload','none');
-
-      const source = document.createElement('source');
-      source.src = `audio/${c.file}`;
-      source.type = 'audio/mpeg';
-      audio.appendChild(source);
-
-      // Pausa gli altri quando uno parte
-      audio.addEventListener('play', () => {
-        audios.forEach(a => { if(a !== audio){ a.pause(); } });
-      });
-
-      // Segna come ascoltato quando termina
-      audio.addEventListener('ended', () => {
-        try { localStorage.setItem(listenedKey(c.file), '1'); } catch(e){}
-        card.classList.add('done');
-      });
-
-      // Stato salvato
-      try {
-        if(localStorage.getItem(listenedKey(c.file)) === '1'){
-          card.classList.add('done');
-        }
-      } catch(e){}
-
-      card.appendChild(audio);
-      grid.appendChild(card);
-      audios.push(audio);
+    audio.addEventListener('play', () => {
+      audios.forEach(a => { if(a !== audio){ a.pause(); } });
     });
-  </script>
+
+    audio.addEventListener('ended', () => {
+      try { localStorage.setItem(listenedKey(c.file), '1'); } catch(e){}
+      card.classList.add('done');
+    });
+
+    try {
+      if(localStorage.getItem(listenedKey(c.file)) === '1'){
+        card.classList.add('done');
+      }
+    } catch(e){}
+
+    card.appendChild(audio);
+    grid.appendChild(card);
+    audios.push(audio);
+  });
+</script>
+
 </body>
 </html>
 
