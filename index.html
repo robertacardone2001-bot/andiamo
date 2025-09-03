@@ -70,7 +70,11 @@ audio{ width:100%; outline:none; accent-color: var(--accent); }
 details.howto{ margin-top:18px; }
 details summary{ cursor:pointer; color:#374619; font-weight:600 }
 code{ background:#f4f4eb; padding:2px 6px; border-radius:6px; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
-
+.chapter.playing {
+      background-color: #38761D; /* verde scuro capitolo in ascolto */
+      color: #ffffff; /* testo bianco sopra verde scuro */
+    }
+    
   </style>
   <!--
   COME AGGIUNGERE I TUOI CAPITOLI
@@ -104,7 +108,7 @@ code{ background:#f4f4eb; padding:2px 6px; border-radius:6px; font-family: ui-mo
 
 <script>
   // === PERSONALIZZA QUI IL NOME DELLA TUA RAGAZZA ===
-  const herName = "Margherita"; // es. "Giulia"
+  const herName = "Amore";
 
   // === ELENCO CAPITOLI ===
   const chapters = [
@@ -160,14 +164,21 @@ code{ background:#f4f4eb; padding:2px 6px; border-radius:6px; font-family: ui-mo
     source.type = 'audio/mpeg';
     audio.appendChild(source);
 
-    // Stop degli altri audio quando uno parte
+    // Stop degli altri audio e evidenzia capitolo in ascolto
     audio.addEventListener('play', () => {
-      audios.forEach(a => { if(a !== audio){ a.pause(); } });
+      audios.forEach(a => { 
+        if(a !== audio){ 
+          a.pause(); 
+          a.parentElement.classList.remove('playing'); 
+        }
+      });
+      card.classList.add('playing'); // evidenzia in verde
     });
 
-    // Segna come ascoltato alla fine
+    // Fine audio: segna come ascoltato e rimuovi evidenziazione
     audio.addEventListener('ended', () => {
-      try { localStorage.setItem(listenedKey(c.file), '1'); } catch(e){}
+      card.classList.remove('playing');
+      localStorage.setItem(listenedKey(c.file), '1');
       card.classList.add('done');
     });
 
@@ -187,13 +198,14 @@ code{ background:#f4f4eb; padding:2px 6px; border-radius:6px; font-family: ui-mo
     downloadLink.style.fontSize = '13px';
     downloadLink.style.display = 'inline-block';
     downloadLink.style.color = '#6b8e23'; // verde oliva
+
     card.appendChild(audio);
     card.appendChild(downloadLink);
-
     grid.appendChild(card);
     audios.push(audio);
   });
 </script>
+
 
 </body>
 </html>
