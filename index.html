@@ -132,6 +132,45 @@ code {
   background-color: #9caf88;
   color: #1a1a1a;
 }
+    .comment-box {
+  margin-top: 10px;
+  padding: 10px;
+  border: 1px solid #c2c7b0;
+  border-radius: 8px;
+  background: #f4f4eb;
+}
+
+.comment-box textarea {
+  width: 100%;
+  min-height: 60px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  padding: 6px;
+  margin-bottom: 6px;
+  font-family: inherit;
+}
+
+.comment-box button {
+  background: var(--accent);
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.comment-box button:hover {
+  background: var(--accent-2);
+}
+
+.comments-list p {
+  font-size: 14px;
+  margin: 4px 0;
+  padding: 4px;
+  background: #e6eed1;
+  border-radius: 4px;
+}
+
 
 }
 
@@ -145,6 +184,28 @@ code {
   3) NON usare spazi o lettere maiuscole nei nomi dei file; esempio: 01-introduzione.mp3
   4) Carica/sostituisci i file su GitHub: il sito si aggiornerà da solo.
   -->
+  <script type="module">
+  // Importiamo Firebase e Firestore
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
+  import { getFirestore } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
+
+  // Configurazione che ti ha dato Firebase (tu l’hai già copiata giusta 👍)
+  const firebaseConfig = {
+    apiKey: "AIzaSyDIJ7LyZMWfWxxZWNGVD1vSAfRDS0M2_P8",
+    authDomain: "libroaudio-d36b5.firebaseapp.com",
+    projectId: "libroaudio-d36b5",
+    storageBucket: "libroaudio-d36b5.firebasestorage.app",
+    messagingSenderId: "1047668815151",
+    appId: "1:1047668815151:web:552fa4dd63b2a847845dda"
+  };
+
+  // Inizializza l’app Firebase
+  const app = initializeApp(firebaseConfig);
+
+  // Rendi disponibile il database a tutto il sito
+  window.db = getFirestore(app);
+</script>
+
 </head>
 <body>
   <div class="wrap">
@@ -289,6 +350,52 @@ audio.addEventListener('ended', () => {
 if (localStorage.getItem(`listened::${c.file}`) === '1') {
   card.classList.add('done');
 }
+  // === BOX COMMENTI ===
+const commentBox = document.createElement('div');
+commentBox.className = 'comment-box';
+
+const textarea = document.createElement('textarea');
+textarea.placeholder = "Scrivi un pensiero su questo capitolo...";
+
+const saveBtn = document.createElement('button');
+saveBtn.textContent = "Salva";
+
+const commentsList = document.createElement('div');
+commentsList.className = "comments-list";
+
+// salva commento su Firebase
+saveBtn.addEventListener('click', async () => {
+  if (textarea.value.trim() !== "") {
+    await db.collection("commenti").add({
+      capitolo: c.title,
+      testo: textarea.value,
+      timestamp: new Date()
+    });
+    textarea.value = "";
+    loadComments();
+  }
+});
+
+// carica commenti da Firebase
+async function loadComments() {
+  commentsList.innerHTML = "";
+  const snapshot = await db.collection("commenti")
+    .where("capitolo", "==", c.title)
+    .orderBy("timestamp", "asc")
+    .get();
+  snapshot.forEach(doc => {
+    const p = document.createElement('p');
+    p.textContent = "💬 " + doc.data().testo;
+    commentsList.appendChild(p);
+  });
+}
+loadComments();
+
+commentBox.appendChild(textarea);
+commentBox.appendChild(saveBtn);
+commentBox.appendChild(commentsList);
+card.appendChild(commentBox);
+
 
 </script>
 
