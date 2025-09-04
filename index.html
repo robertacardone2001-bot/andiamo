@@ -401,10 +401,11 @@ code {
     });
 
     // Caricamento commenti
-    async function loadComments(){
+    async function loadComments(chapter){
       commentsList.innerHTML = "";
       const q = query(
         collection(window.db, "commenti"),
+        where("capitolo","==", chapter),
         orderBy("timestamp","asc")
       );
       const snapshot = await getDocs(q);
