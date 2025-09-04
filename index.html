@@ -388,7 +388,6 @@ code {
       commentsList.innerHTML = "";
       const q = query(
         collection(db, "commenti"),
-        where("capitolo","==",c.title),
         orderBy("timestamp","asc")
       );
       const snapshot = await getDocs(q);
