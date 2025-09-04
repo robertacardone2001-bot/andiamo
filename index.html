@@ -288,6 +288,56 @@ code {
     source.type = 'audio/mpeg';
     audio.appendChild(source);
 
+    // === BOX COMMENTI ===
+  const commentBox = document.createElement('div');
+  commentBox.className = 'comment-box';
+
+  const textarea = document.createElement('textarea');
+  textarea.placeholder = "Scrivi un pensiero su questo capitolo...";
+
+  const saveBtn = document.createElement('button');
+  saveBtn.textContent = "Salva";
+
+  const commentsList = document.createElement('div');
+  commentsList.className = "comments-list";
+
+  commentBox.appendChild(textarea);
+  commentBox.appendChild(saveBtn);
+  commentBox.appendChild(commentsList);
+
+  card.appendChild(commentBox); // <--- ATTENZIONE: deve stare prima di grid.appendChild(card)
+
+  // === FIREBASE LISTENER ===
+  saveBtn.addEventListener('click', async () => {
+    if (textarea.value.trim() !== "") {
+      await db.collection("commenti").add({
+        capitolo: c.title,
+        testo: textarea.value,
+        timestamp: new Date()
+      });
+      textarea.value = "";
+      loadComments();
+    }
+  });
+
+  async function loadComments() {
+    commentsList.innerHTML = "";
+    const snapshot = await db.collection("commenti")
+      .where("capitolo", "==", c.title)
+      .orderBy("timestamp", "asc")
+      .get();
+    snapshot.forEach(doc => {
+      const p = document.createElement('p');
+      p.textContent = "💬 " + doc.data().testo;
+      commentsList.appendChild(p);
+    });
+  }
+  loadComments();
+
+  grid.appendChild(card); // <--- finale: aggiunge la card alla griglia
+});
+
+
     // Stop degli altri audio e evidenzia capitolo in ascolto
     audio.addEventListener('play', () => {
       audios.forEach(a => { 
@@ -350,51 +400,7 @@ audio.addEventListener('ended', () => {
 if (localStorage.getItem(`listened::${c.file}`) === '1') {
   card.classList.add('done');
 }
-  // === BOX COMMENTI ===
-const commentBox = document.createElement('div');
-commentBox.className = 'comment-box';
-
-const textarea = document.createElement('textarea');
-textarea.placeholder = "Scrivi un pensiero su questo capitolo...";
-
-const saveBtn = document.createElement('button');
-saveBtn.textContent = "Salva";
-
-const commentsList = document.createElement('div');
-commentsList.className = "comments-list";
-
-// salva commento su Firebase
-saveBtn.addEventListener('click', async () => {
-  if (textarea.value.trim() !== "") {
-    await db.collection("commenti").add({
-      capitolo: c.title,
-      testo: textarea.value,
-      timestamp: new Date()
-    });
-    textarea.value = "";
-    loadComments();
-  }
-});
-
-// carica commenti da Firebase
-async function loadComments() {
-  commentsList.innerHTML = "";
-  const snapshot = await db.collection("commenti")
-    .where("capitolo", "==", c.title)
-    .orderBy("timestamp", "asc")
-    .get();
-  snapshot.forEach(doc => {
-    const p = document.createElement('p');
-    p.textContent = "💬 " + doc.data().testo;
-    commentsList.appendChild(p);
-  });
-}
-loadComments();
-
-commentBox.appendChild(textarea);
-commentBox.appendChild(saveBtn);
-commentBox.appendChild(commentsList);
-card.appendChild(commentBox);
+ 
 
 
 </script>
