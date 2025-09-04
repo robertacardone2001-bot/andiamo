@@ -201,6 +201,7 @@ code {
 
   // Inizializza l’app Firebase
   const app = initializeApp(firebaseConfig);
+ 
 
   // Rendi disponibile il database a tutto il sito
   window.db = getFirestore(app);
@@ -373,7 +374,7 @@ code {
     // Salvataggio commento su Firebase
     saveBtn.addEventListener('click', async () => {
       if(textarea.value.trim() !== ""){
-        await addDoc(collection(db, "commenti"), {
+        await addDoc(collection(window.db, "commenti"), {
           capitolo: c.title,
           testo: textarea.value,
           timestamp: new Date()
@@ -387,7 +388,7 @@ code {
     async function loadComments(){
       commentsList.innerHTML = "";
       const q = query(
-        collection(db, "commenti"),
+        collection(window.db, "commenti"),
         orderBy("timestamp","asc")
       );
       const snapshot = await getDocs(q);
