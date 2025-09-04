@@ -229,10 +229,33 @@ code {
     <p class="footer">Con ❤️ — <span id="footer-name">"Per Margherita"</span></p>
   </div>
 
-<script>
+<script type="module">
+  // Import Firebase modulare
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
+  import { getFirestore, collection, addDoc, query, where, orderBy, getDocs } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
+
+  // Config Firebase
+  const firebaseConfig = {
+    apiKey: "AIzaSyDIJ7LyZMWfWxxZWNGVD1vSAfRDS0M2_P8",
+    authDomain: "libroaudio-d36b5.firebaseapp.com",
+    projectId: "libroaudio-d36b5",
+    storageBucket: "libroaudio-d36b5.firebasestorage.app",
+    messagingSenderId: "1047668815151",
+    appId: "1:1047668815151:web:552fa4dd63b2a847845dda"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  // Personalizzazione nome e titolo
   const herName = "Margherita";
   const title = "La canzone di Achille";
 
+  document.title = `Per ${herName} — Capitoli Audio`;
+  document.getElementById('her-name').textContent = title;
+  document.getElementById('footer-name').textContent = `Per ${herName}`;
+
+  // Capitoli
   const chapters = [
     { title: "Capitolo 1", file: "01-Capitolo-1.mp3" },
     { title: "Capitolo 2", file: "02-Capitolo-2.mp3" },
@@ -243,10 +266,6 @@ code {
     { title: "Capitolo 7", file: "07-Capitolo-7.mp3" }
   ];
 
-  document.title = `Per ${herName} — Capitoli Audio`;
-  document.getElementById('her-name').textContent = title;
-  document.getElementById('footer-name').textContent = `Per ${herName}`;
-
   const grid = document.getElementById('chapters');
   const audios = [];
   const listenedKey = (file) => `listened::${file}`;
@@ -254,7 +273,9 @@ code {
   chapters.forEach((c, i) => {
     const card = document.createElement('div');
     card.className = 'chapter';
+    card.dataset.file = c.file;
 
+    // Top row numero + titolo
     const top = document.createElement('div');
     top.className = 'row';
 
@@ -275,16 +296,20 @@ code {
     card.appendChild(top);
     card.appendChild(tick);
 
+    // Audio
     const audio = document.createElement('audio');
     audio.setAttribute('controls','');
     audio.setAttribute('preload','none');
+
     const source = document.createElement('source');
     source.src = `audio/${c.file}`;
     source.type = 'audio/mpeg';
     audio.appendChild(source);
     card.appendChild(audio);
 
-    // Eventi audio
+    audios.push(audio);
+
+    // Evidenziazione capitoli in ascolto e già ascoltati
     audio.addEventListener('play', () => {
       audios.forEach(a => {
         if(a !== audio){
@@ -293,14 +318,13 @@ code {
           if(localStorage.getItem(listenedKey(cCard.dataset.file)) === '1'){
             cCard.style.backgroundColor = '#9caf88'; // verde medio
           } else {
-            cCard.style.backgroundColor = ''; // colore normale
+            cCard.style.backgroundColor = ''; // default
           }
           cCard.classList.remove('playing');
         }
       });
       card.classList.add('playing');
       card.style.backgroundColor = '#38761D'; // verde scuro
-      card.dataset.file = c.file;
     });
 
     audio.addEventListener('ended', () => {
@@ -309,12 +333,10 @@ code {
       card.style.backgroundColor = '#9caf88'; // verde medio
     });
 
-    // Capitoli già ascoltati
+    // Stato già ascoltato all’avvio
     if(localStorage.getItem(listenedKey(c.file)) === '1'){
       card.style.backgroundColor = '#9caf88';
     }
-
-    audios.push(audio);
 
     // Download
     const downloadLink = document.createElement('a');
@@ -330,10 +352,13 @@ code {
     // Box commenti
     const commentBox = document.createElement('div');
     commentBox.className = 'comment-box';
+
     const textarea = document.createElement('textarea');
     textarea.placeholder = "Scrivi un pensiero su questo capitolo...";
+
     const saveBtn = document.createElement('button');
     saveBtn.textContent = "Salva";
+
     const commentsList = document.createElement('div');
     commentsList.className = "comments-list";
 
@@ -342,9 +367,10 @@ code {
     commentBox.appendChild(commentsList);
     card.appendChild(commentBox);
 
+    // Salvataggio commento su Firebase
     saveBtn.addEventListener('click', async () => {
       if(textarea.value.trim() !== ""){
-        await db.collection("commenti").add({
+        await addDoc(collection(db, "commenti"), {
           capitolo: c.title,
           testo: textarea.value,
           timestamp: new Date()
@@ -354,12 +380,15 @@ code {
       }
     });
 
+    // Caricamento commenti
     async function loadComments(){
       commentsList.innerHTML = "";
-      const snapshot = await db.collection("commenti")
-        .where("capitolo","==",c.title)
-        .orderBy("timestamp","asc")
-        .get();
+      const q = query(
+        collection(db, "commenti"),
+        where("capitolo","==",c.title),
+        orderBy("timestamp","asc")
+      );
+      const snapshot = await getDocs(q);
       snapshot.forEach(doc => {
         const p = document.createElement('p');
         p.textContent = "💬 " + doc.data().testo;
@@ -372,6 +401,7 @@ code {
     grid.appendChild(card);
   });
 </script>
+
 
 
 
