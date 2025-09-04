@@ -359,13 +359,31 @@ code {
     const saveBtn = document.createElement('button');
     saveBtn.textContent = "Salva";
 
+    const toggleBtn = document.createElement('button');
+  toggleBtn.textContent = "Vedi commenti";
+  toggleBtn.style.marginLeft = "6px";
+  toggleBtn.style.background = "#a4b97f";
+  toggleBtn.style.color = "#2f3120";
+  toggleBtn.style.border = "none";
+  toggleBtn.style.padding = "6px 10px";
+  toggleBtn.style.borderRadius = "6px";
+  toggleBtn.style.cursor = "pointer";
+
     const commentsList = document.createElement('div');
     commentsList.className = "comments-list";
 
-    commentBox.appendChild(textarea);
-    commentBox.appendChild(saveBtn);
-    commentBox.appendChild(commentsList);
-    card.appendChild(commentBox);
+     // Toggle visibilità commenti
+  toggleBtn.addEventListener('click', () => {
+    if(commentsList.style.display === "none"){
+      commentsList.style.display = "block";
+      toggleBtn.textContent = "Nascondi commenti";
+    } else {
+      commentsList.style.display = "none";
+      toggleBtn.textContent = commentsList.childElementCount > 0 
+        ? `Vedi commenti (${commentsList.childElementCount})` 
+        : "Vedi commenti";
+    }
+  });
 
     // Salvataggio commento su Firebase
     saveBtn.addEventListener('click', async () => {
@@ -394,9 +412,20 @@ code {
         p.textContent = "💬 " + doc.data().testo;
         commentsList.appendChild(p);
       });
+       // Aggiorna badge numero commenti
+    toggleBtn.textContent = commentsList.childElementCount > 0
+      ? `Vedi commenti (${commentsList.childElementCount})`
+      : "Vedi commenti";
+  }
     }
 
     loadComments();
+
+  commentBox.appendChild(textarea);
+  commentBox.appendChild(saveBtn);
+  commentBox.appendChild(toggleBtn);
+  commentBox.appendChild(commentsList);
+  card.appendChild(commentBox);
 
     grid.appendChild(card);
   });
