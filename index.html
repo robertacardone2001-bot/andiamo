@@ -230,11 +230,9 @@ code {
   </div>
 
 <script>
-  // === PERSONALIZZA QUI IL NOME DELLA TUA RAGAZZA ===
   const herName = "Margherita";
   const title = "La canzone di Achille";
 
-  // === ELENCO CAPITOLI ===
   const chapters = [
     { title: "Capitolo 1", file: "01-Capitolo-1.mp3" },
     { title: "Capitolo 2", file: "02-Capitolo-2.mp3" },
@@ -245,12 +243,10 @@ code {
     { title: "Capitolo 7", file: "07-Capitolo-7.mp3" }
   ];
 
-  // === IMPOSTAZIONI PAGINA ===
   document.title = `Per ${herName} — Capitoli Audio`;
   document.getElementById('her-name').textContent = title;
   document.getElementById('footer-name').textContent = `Per ${herName}`;
 
-  // === CARICAMENTO CAPITOLI ===
   const grid = document.getElementById('chapters');
   const audios = [];
   const listenedKey = (file) => `listened::${file}`;
@@ -266,104 +262,61 @@ code {
     num.className = 'num';
     num.textContent = (i+1).toString().padStart(2,'0');
 
-    const title = document.createElement('div');
-    title.className = 'ctitle';
-    title.textContent = c.title;
+    const titleDiv = document.createElement('div');
+    titleDiv.className = 'ctitle';
+    titleDiv.textContent = c.title;
 
     const tick = document.createElement('span');
     tick.className = 'tick';
     tick.textContent = '✓ Ascoltato';
 
     top.appendChild(num);
-    top.appendChild(title);
+    top.appendChild(titleDiv);
     card.appendChild(top);
     card.appendChild(tick);
 
     const audio = document.createElement('audio');
     audio.setAttribute('controls','');
     audio.setAttribute('preload','none');
-
     const source = document.createElement('source');
     source.src = `audio/${c.file}`;
     source.type = 'audio/mpeg';
     audio.appendChild(source);
+    card.appendChild(audio);
 
-    // === BOX COMMENTI ===
-  const commentBox = document.createElement('div');
-  commentBox.className = 'comment-box';
-
-  const textarea = document.createElement('textarea');
-  textarea.placeholder = "Scrivi un pensiero su questo capitolo...";
-
-  const saveBtn = document.createElement('button');
-  saveBtn.textContent = "Salva";
-
-  const commentsList = document.createElement('div');
-  commentsList.className = "comments-list";
-
-  commentBox.appendChild(textarea);
-  commentBox.appendChild(saveBtn);
-  commentBox.appendChild(commentsList);
-
-  card.appendChild(commentBox); // <--- ATTENZIONE: deve stare prima di grid.appendChild(card)
-
-  // === FIREBASE LISTENER ===
-  saveBtn.addEventListener('click', async () => {
-    if (textarea.value.trim() !== "") {
-      await db.collection("commenti").add({
-        capitolo: c.title,
-        testo: textarea.value,
-        timestamp: new Date()
-      });
-      textarea.value = "";
-      loadComments();
-    }
-  });
-
-  async function loadComments() {
-    commentsList.innerHTML = "";
-    const snapshot = await db.collection("commenti")
-      .where("capitolo", "==", c.title)
-      .orderBy("timestamp", "asc")
-      .get();
-    snapshot.forEach(doc => {
-      const p = document.createElement('p');
-      p.textContent = "💬 " + doc.data().testo;
-      commentsList.appendChild(p);
-    });
-  }
-  loadComments();
-
-  grid.appendChild(card); // <--- finale: aggiunge la card alla griglia
-});
-
-
-    // Stop degli altri audio e evidenzia capitolo in ascolto
+    // Eventi audio
     audio.addEventListener('play', () => {
-      audios.forEach(a => { 
-        if(a !== audio){ 
-          a.pause(); 
-          a.parentElement.classList.remove('playing'); 
+      audios.forEach(a => {
+        if(a !== audio){
+          a.pause();
+          const cCard = a.parentElement;
+          if(localStorage.getItem(listenedKey(cCard.dataset.file)) === '1'){
+            cCard.style.backgroundColor = '#9caf88'; // verde medio
+          } else {
+            cCard.style.backgroundColor = ''; // colore normale
+          }
+          cCard.classList.remove('playing');
         }
       });
-      card.classList.add('playing'); // evidenzia in verde
+      card.classList.add('playing');
+      card.style.backgroundColor = '#38761D'; // verde scuro
+      card.dataset.file = c.file;
     });
 
-    // Fine audio: segna come ascoltato e rimuovi evidenziazione
     audio.addEventListener('ended', () => {
       card.classList.remove('playing');
       localStorage.setItem(listenedKey(c.file), '1');
-      card.classList.add('done');
+      card.style.backgroundColor = '#9caf88'; // verde medio
     });
 
-    // Controlla se già ascoltato
-    try {
-      if(localStorage.getItem(listenedKey(c.file)) === '1'){
-        card.classList.add('done');
-      }
-    } catch(e){}
+    // Capitoli già ascoltati
+    if(localStorage.getItem(listenedKey(c.file)) === '1'){
+      card.style.backgroundColor = '#9caf88';
+    }
 
-    // Link per scaricare il capitolo
+    audios.push(audio);
+
+    // Download
     const downloadLink = document.createElement('a');
     downloadLink.href = `audio/${c.file}`;
     downloadLink.download = c.file;
@@ -371,39 +324,55 @@ code {
     downloadLink.style.marginTop = '6px';
     downloadLink.style.fontSize = '13px';
     downloadLink.style.display = 'inline-block';
-    downloadLink.style.color = '#6b8e23'; // verde oliva
-
-    card.appendChild(audio);
+    downloadLink.style.color = '#6b8e23';
     card.appendChild(downloadLink);
-    grid.appendChild(card);
-    audios.push(audio);
-  });
-  audio.addEventListener('play', () => {
-  // Togli solo lo stato "playing" dagli altri
-  audios.forEach(a => {
-    if(a !== audio){
-      a.pause();
-      a.parentElement.classList.remove('playing');
+
+    // Box commenti
+    const commentBox = document.createElement('div');
+    commentBox.className = 'comment-box';
+    const textarea = document.createElement('textarea');
+    textarea.placeholder = "Scrivi un pensiero su questo capitolo...";
+    const saveBtn = document.createElement('button');
+    saveBtn.textContent = "Salva";
+    const commentsList = document.createElement('div');
+    commentsList.className = "comments-list";
+
+    commentBox.appendChild(textarea);
+    commentBox.appendChild(saveBtn);
+    commentBox.appendChild(commentsList);
+    card.appendChild(commentBox);
+
+    saveBtn.addEventListener('click', async () => {
+      if(textarea.value.trim() !== ""){
+        await db.collection("commenti").add({
+          capitolo: c.title,
+          testo: textarea.value,
+          timestamp: new Date()
+        });
+        textarea.value = "";
+        loadComments();
+      }
+    });
+
+    async function loadComments(){
+      commentsList.innerHTML = "";
+      const snapshot = await db.collection("commenti")
+        .where("capitolo","==",c.title)
+        .orderBy("timestamp","asc")
+        .get();
+      snapshot.forEach(doc => {
+        const p = document.createElement('p');
+        p.textContent = "💬 " + doc.data().testo;
+        commentsList.appendChild(p);
+      });
     }
+
+    loadComments();
+
+    grid.appendChild(card);
   });
-  card.classList.add('playing');
-});
-
-audio.addEventListener('ended', () => {
-  // Quando finisce: segna come "già ascoltato"
-  localStorage.setItem(`listened::${c.file}`, '1');
-  card.classList.remove('playing');
-  card.classList.add('done');
-});
-
-// All’avvio: controlla se già ascoltato
-if (localStorage.getItem(`listened::${c.file}`) === '1') {
-  card.classList.add('done');
-}
- 
-
-
 </script>
+
 
 
 </body>
