@@ -143,126 +143,149 @@
       { title:"Capitolo 7", file:"07-Capitolo-7.mp3"},
     ];
 
-    const grid=document.getElementById("chapters");
-    const audios=[];
-    const listenedKey=(f)=>`listened::${f}`;
+    const grid = document.getElementById("chapters");
+const audios = [];
+const listenedKey = (f) => `listened::${f}`;
 
-    chapters.forEach((c,i)=>{
-      const card=document.createElement("div");
-      card.className="chapter";
-      card.dataset.file=c.file;
+chapters.forEach((c, i) => {
+  // Card capitolo
+  const card = document.createElement("div");
+  card.className = "chapter";
+  card.dataset.file = c.file;
 
-      const top=document.createElement("div");
-      top.className="row";
-      const num=document.createElement("span");
-      num.className="num"; num.textContent=(i+1).toString().padStart(2,"0");
-      const t=document.createElement("div");
-      t.className="ctitle"; t.textContent=c.title;
-      top.appendChild(num); top.appendChild(t);
-      card.appendChild(top);
+  // Top row: numero + titolo
+  const top = document.createElement("div");
+  top.className = "row";
 
-      const audio=document.createElement("audio");
-      audio.controls=true;
-      const src=document.createElement("source");
-      src.src=`audio/${c.file}`; src.type="audio/mpeg";
-      audio.appendChild(src);
-      card.appendChild(audio);
-      audios.push(audio);
+  const num = document.createElement("span");
+  num.className = "num";
+  num.textContent = (i + 1).toString().padStart(2, "0");
 
-      audio.addEventListener("play",()=>{
-        audios.forEach(a=>{
-          if(a!==audio){
-            a.pause();
-            const cc=a.parentElement;
-            cc.classList.remove("playing");
-            if(localStorage.getItem(listenedKey(cc.dataset.file))==="1") cc.classList.add("done");
-          }
-        });
-        card.classList.add("playing");
-      });
+  const titleDiv = document.createElement("div");
+  titleDiv.className = "ctitle";
+  titleDiv.textContent = c.title;
 
-      audio.addEventListener("ended",()=>{
-        card.classList.remove("playing");
-        localStorage.setItem(listenedKey(c.file),"1");
-        card.classList.add("done");
-      });
+  top.appendChild(num);
+  top.appendChild(titleDiv);
+  card.appendChild(top);
 
-      if(localStorage.getItem(listenedKey(c.file))==="1") card.classList.add("done");
+  // Audio
+  const audio = document.createElement("audio");
+  audio.controls = true;
+  const source = document.createElement("source");
+  source.src = `audio/${c.file}`;
+  source.type = "audio/mpeg";
+  audio.appendChild(source);
+  card.appendChild(audio);
+  audios.push(audio);
 
-      // Download
-      const dl=document.createElement("a");
-      dl.href=`audio/${c.file}`; dl.download=c.file;
-      dl.textContent="Scarica";
-      dl.style.fontSize="13px";
-      card.appendChild(dl);
-
-      // Commenti
-      const commentBox=document.createElement("div"); commentBox.className="comment-box";
-      const ta=document.createElement("textarea"); ta.placeholder="Scrivi un pensiero...";
-      const save=document.createElement("button"); save.textContent="Salva";
-      const toggle=document.createElement("button"); toggle.textContent="Vedi commenti";
-      toggle.style.marginLeft="6px"; toggle.style.background="#a4b97f"; toggle.style.color="#2f3120";
-      const list=document.createElement("div"); list.className="comments-list"; list.style.display="none";
-
-      toggle.addEventListener("click",()=>{
-        if(list.style.display==="none"){list.style.display="block"; toggle.textContent="Nascondi commenti";}
-        else{list.style.display="none"; toggle.textContent=list.childElementCount>0?`Vedi commenti (${list.childElementCount})`:"Vedi commenti";}
-      });
-
-      save.addEventListener("click",async()=>{
-        if(ta.value.trim()!==""){
-          await addDoc(collection(db,"commenti"),{capitolo:c.title,testo:ta.value,timestamp:new Date()});
-          ta.value=""; loadComments(c.title);
+  // Evidenzia capitoli in ascolto / ascoltati
+  audio.addEventListener("play", () => {
+    audios.forEach(a => {
+      if (a !== audio) {
+        a.pause();
+        const cCard = a.parentElement;
+        cCard.classList.remove("playing");
+        if (localStorage.getItem(listenedKey(cCard.dataset.file)) === "1") {
+          cCard.classList.add("done");
         }
-      });
-
-      async function loadComments(c.title){
-        list.innerHTML="";
-        const q=query(collection(db,"commenti"),where("capitolo","==",c.title),orderBy("timestamp","asc"));
-        const snap=await getDocs(q);
-        snap.forEach(doc=>{
-          const p=document.createElement("p");
-          p.textContent="💬 "+doc.data().testo;
-          list.appendChild(p);
-        });
-        toggle.textContent=list.childElementCount>0?`Vedi commenti (${list.childElementCount})`:"Vedi commenti";
       }
+    });
+    card.classList.add("playing");
+  });
+
+  audio.addEventListener("ended", () => {
+    card.classList.remove("playing");
+    localStorage.setItem(listenedKey(c.file), "1");
+    card.classList.add("done");
+  });
+
+  if (localStorage.getItem(listenedKey(c.file)) === "1") card.classList.add("done");
+
+  // Download
+  const dl = document.createElement("a");
+  dl.href = `audio/${c.file}`;
+  dl.download = c.file;
+  dl.textContent = "Scarica";
+  dl.style.fontSize = "13px";
+  card.appendChild(dl);
+
+  // Commenti
+  const commentBox = document.createElement("div");
+  commentBox.className = "comment-box";
+
+  const textarea = document.createElement("textarea");
+  textarea.placeholder = "Scrivi un pensiero su questo capitolo...";
+
+  const saveBtn = document.createElement("button");
+  saveBtn.textContent = "Salva";
+
+  const toggleBtn = document.createElement("button");
+  toggleBtn.textContent = "Vedi commenti";
+  toggleBtn.style.marginLeft = "6px";
+  toggleBtn.style.background = "#a4b97f";
+  toggleBtn.style.color = "#2f3120";
+
+  const commentsList = document.createElement("div");
+  commentsList.className = "comments-list";
+  commentsList.style.display = "none";
+
+  // Toggle visibilità commenti
+  toggleBtn.addEventListener("click", () => {
+    if (commentsList.style.display === "none") {
+      commentsList.style.display = "block";
+      toggleBtn.textContent = "Nascondi commenti";
+    } else {
+      commentsList.style.display = "none";
+      toggleBtn.textContent = commentsList.childElementCount > 0
+        ? `Vedi commenti (${commentsList.childElementCount})`
+        : "Vedi commenti";
+    }
+  });
+
+  // Salvataggio commenti su Firebase
+  saveBtn.addEventListener("click", async () => {
+    if (textarea.value.trim() !== "") {
+      await addDoc(collection(db, "commenti"), {
+        capitolo: c.title,
+        testo: textarea.value,
+        timestamp: new Date()
+      });
+      textarea.value = "";
       loadComments(c.title);
+    }
+  });
 
-      commentBox.appendChild(ta); commentBox.appendChild(save); commentBox.appendChild(toggle); commentBox.appendChild(list);
-      card.appendChild(commentBox);
-
-      grid.appendChild(card);
+  // Caricamento commenti
+  async function loadComments(chapter) {
+    commentsList.innerHTML = "";
+    const q = query(
+      collection(db, "commenti"),
+      where("capitolo", "==", chapter),
+      orderBy("timestamp", "asc")
+    );
+    const snapshot = await getDocs(q);
+    snapshot.forEach(doc => {
+      const p = document.createElement("p");
+      p.textContent = "💬 " + doc.data().testo;
+      commentsList.appendChild(p);
     });
-    saveBtn.addEventListener('click', async () => {
-  if(textarea.value.trim() !== ""){
-    await addDoc(collection(window.db, "commenti"), {
-      capitolo: c.title,
-      testo: textarea.value,
-      timestamp: new Date()
-    });
-    textarea.value = "";
-    loadComments(c.title);
+    toggleBtn.textContent = commentsList.childElementCount > 0
+      ? `Vedi commenti (${commentsList.childElementCount})`
+      : "Vedi commenti";
   }
+
+  loadComments(c.title);
+
+  commentBox.appendChild(textarea);
+  commentBox.appendChild(saveBtn);
+  commentBox.appendChild(toggleBtn);
+  commentBox.appendChild(commentsList);
+  card.appendChild(commentBox);
+
+  grid.appendChild(card);
 });
 
-async function loadComments(chapter){
-  commentsList.innerHTML = "";
-  const q = query(
-    collection(window.db, "commenti"),
-    where("capitolo","==", chapter),
-    orderBy("timestamp","asc")
-  );
-  const snapshot = await getDocs(q);
-  snapshot.forEach(doc => {
-    const p = document.createElement('p');
-    p.textContent = "💬 " + doc.data().testo;
-    commentsList.appendChild(p);
-  });
-  toggleBtn.textContent = commentsList.childElementCount > 0
-    ? `Vedi commenti (${commentsList.childElementCount})`
-    : "Vedi commenti";
-}
 
   </script>
 </body>
