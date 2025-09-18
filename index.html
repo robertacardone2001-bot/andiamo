@@ -3,439 +3,233 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Andiamo — La canzone di Achille</title>
+  <title>Per Margherita — La canzone di Achille</title>
   <meta name="description" content="La canzone di Achille, Madeline Miller." />
-  <meta property="og:title" content="Andiamo — La canzone di Achille" />
-  <meta property="og:description" content="La canzone di Achille, Madeline Miller." />
+  <meta property="og:title" content="Per Margherita — La canzone di Achille" />
+  <meta property="og:description" content="Audiolibro capitoli personalizzati" />
   <meta property="og:type" content="website" />
+
+  <!-- Icona -->
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='0.9em' font-size='90'%3E%E2%9D%A4%EF%B8%8F%3C/text%3E%3C/svg%3E">
+
+  <!-- Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-  <style>:root{
-  --bg1:#f4f4eb;   /* beige/oliva molto chiaro */
-  --bg2:#e9eddb;   /* verde oliva chiarissimo */
-  --card:#ffffff;
-  --ink:#2f3120;   /* testo oliva scuro */
-  --muted:#6b705c; /* grigio/verde smorzato */
-  --accent:#6b8e23; /* verde oliva */
-  --accent-2:#a4b97f; /* oliva chiaro caldo */
-  --ring:rgba(107,142,35,.25);
-}
 
-html,body{height:100%}
-body{
-  margin:0; padding:0;
-  font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Apple Color Emoji","Segoe UI Emoji";
-  color:var(--ink);
-  background: radial-gradient(1200px 800px at 20% -10%, var(--bg1), transparent),
-              radial-gradient(1200px 800px at 100% 20%, var(--bg2), transparent),
-              linear-gradient(180deg, #ffffff 0%, #f5f7ef 60%, #edf1e3 100%);
-  background-attachment: fixed;
-}
-.wrap{max-width:960px; margin:0 auto; padding:32px 20px 64px}
-header{display:flex; flex-direction:column; gap:10px; align-items:center; text-align:center;}
-.badge{display:inline-flex; align-items:center; gap:6px; padding:6px 10px; font-size:12px; border-radius:999px; background:rgba(107,142,35,.08); color:#374619;}
-.title{font-family: "Playfair Display", serif; font-weight:700; font-size: clamp(28px, 6vw, 48px); letter-spacing:.2px; margin:4px 0 0}
-.subtitle{color:var(--muted); font-size:14px}
-.card{
-  margin-top:22px; background:var(--card); border-radius:20px; padding:22px;
-  box-shadow:0 10px 30px rgba(107,142,35,.08), 0 2px 12px rgba(0,0,0,.06);
-  border:1px solid rgba(107,142,35,.08);
-}
-.hero{display:flex; gap:18px; align-items:center; justify-content:center; flex-wrap:wrap}
-.hero .heart{font-size:28px}
-.hero p{margin:0; font-size:15px; color:#3e4422}
-
-.grid{display:grid; grid-template-columns: 1fr; gap:12px; margin-top:20px}
-@media (min-width:680px){ .grid{ grid-template-columns: 1fr 1fr; } }
-
-.chapter{
-  position:relative; border:1px solid rgba(107,142,35,.12); background:#fff;
-  border-radius:16px; padding:14px 14px 12px 16px; display:flex; flex-direction:column; gap:8px;
-  transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
-}
-.chapter:hover{ transform: translateY(-2px); box-shadow:0 10px 18px rgba(107,142,35,.10); border-color: rgba(107,142,35,.25); }
-.row{display:flex; align-items:center; gap:12px;}
-.num{width:30px; height:30px; border-radius:999px;
-  background:linear-gradient(180deg, #d6dec1, #a4b97f);
-  display:inline-flex; align-items:center; justify-content:center;
-  font-weight:700; font-size:14px; color:#2f3120; box-shadow: inset 0 1px 0 #fff;
-}
-.ctitle {
-  font-weight:600;
-  font-size:15px
-}
-
-audio {
-  width:100%;
-  outline:none;
-  accent-color: var(--accent);
-}
-
-.done {
-  border-color: rgba(34,197,94,.35);
-}
-
-.tick {
-  position:absolute;
-  top:10px;
-  right:10px;
-  font-size:12px;
-  padding:4px 8px;
-  border-radius:999px;
-  background:rgba(34,197,94,.12);
-  color:#166534;
-  display:none;
-}
-
-.chapter.done .tick {
-  display:inline-flex;
-}
-
-.footer {
-  margin-top:30px;
-  text-align:center;
-  font-size:12px;
-  color:var(--muted);
-}
-
-.footer a {
-  color:#374619;
-  text-decoration: none;
-  border-bottom:1px dotted rgba(55,70,25,.5)
-}
-
-details.howto {
-  margin-top:18px;
-}
-
-details summary {
-  cursor:pointer;
-  color:#374619;
-  font-weight:600
-}
-
-code {
-  background:#f4f4eb;
-  padding:2px 6px;
-  border-radius:6px;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-}
-
-/* verde scuro: capitolo in ascolto */
-.chapter.playing {
-  background-color: #38761D;
-  color: #ffffff;
-}
-
-/* verde medio: capitolo già ascoltato */
-.chapter.done {
-  background-color: #9caf88;
-  color: #1a1a1a;
-}
-    .comment-box {
-  margin-top: 10px;
-  padding: 10px;
-  border: 1px solid #c2c7b0;
-  border-radius: 8px;
-  background: #f4f4eb;
-}
-
-.comment-box textarea {
-  width: 100%;
-  min-height: 60px;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-  padding: 6px;
-  margin-bottom: 6px;
-  font-family: inherit;
-}
-
-.comment-box button {
-  background: var(--accent);
-  color: white;
-  border: none;
-  padding: 6px 12px;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-.comment-box button:hover {
-  background: var(--accent-2);
-}
-
-.comments-list p {
-  font-size: 14px;
-  margin: 4px 0;
-  padding: 4px;
-  background: #e6eed1;
-  border-radius: 4px;
-}
-
-
-}
-
+  <!-- Stili -->
+  <style>
+    :root{
+      --bg1:#f4f4eb;
+      --bg2:#e9eddb;
+      --card:#ffffff;
+      --ink:#2f3120;
+      --muted:#6b705c;
+      --accent:#6b8e23;
+      --accent-2:#a4b97f;
     }
-    
+    body{
+      margin:0; padding:0;
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+      color:var(--ink);
+      background: radial-gradient(1200px 800px at 20% -10%, var(--bg1), transparent),
+                  radial-gradient(1200px 800px at 100% 20%, var(--bg2), transparent),
+                  linear-gradient(180deg, #ffffff 0%, #f5f7ef 60%, #edf1e3 100%);
+      background-attachment: fixed;
+    }
+    .wrap{max-width:960px; margin:0 auto; padding:32px 20px 64px}
+    header{text-align:center;}
+    .badge{display:inline-block; padding:6px 10px; font-size:12px; border-radius:999px; background:rgba(107,142,35,.08); color:#374619;}
+    .title{font-family: "Playfair Display", serif; font-weight:700; font-size: clamp(28px, 6vw, 48px);}
+    .subtitle{color:var(--muted); font-size:14px}
+
+    .card{
+      margin-top:22px; background:var(--card); border-radius:20px; padding:22px;
+      box-shadow:0 10px 30px rgba(107,142,35,.08), 0 2px 12px rgba(0,0,0,.06);
+      border:1px solid rgba(107,142,35,.08);
+    }
+
+    .grid{display:grid; grid-template-columns:1fr; gap:12px; margin-top:20px}
+    @media(min-width:680px){.grid{grid-template-columns:1fr 1fr;}}
+
+    .chapter{
+      border:1px solid rgba(107,142,35,.12); background:#fff;
+      border-radius:16px; padding:14px; display:flex; flex-direction:column; gap:8px;
+      transition:.2s;
+    }
+    .chapter.playing{background:#38761D; color:#fff;}
+    .chapter.done{background:#9caf88; color:#1a1a1a;}
+
+    .row{display:flex; align-items:center; gap:12px;}
+    .num{width:30px;height:30px;border-radius:999px;
+      background:linear-gradient(180deg,#d6dec1,#a4b97f);
+      display:flex;align-items:center;justify-content:center;
+      font-weight:700;font-size:14px;color:#2f3120;}
+    .ctitle{font-weight:600;font-size:15px}
+
+    audio{width:100%; accent-color:var(--accent);}
+
+    .tick{position:absolute; top:10px; right:10px; font-size:12px; padding:4px 8px; border-radius:999px; background:rgba(34,197,94,.12); color:#166534; display:none;}
+    .chapter.done .tick{display:inline-flex;}
+
+    .footer{margin-top:30px;text-align:center;font-size:12px;color:var(--muted);}
+    .footer a{color:#374619;text-decoration:none;}
+
+    /* Commenti */
+    .comment-box{margin-top:10px;padding:10px;border:1px solid #c2c7b0;border-radius:8px;background:#f4f4eb;}
+    .comment-box textarea{width:100%;min-height:60px;border-radius:6px;border:1px solid #ccc;padding:6px;margin-bottom:6px;}
+    .comment-box button{background:var(--accent);color:#fff;border:none;padding:6px 12px;border-radius:6px;cursor:pointer;}
+    .comment-box button:hover{background:var(--accent-2);}
+    .comments-list p{font-size:14px;margin:4px 0;padding:4px;background:#e6eed1;border-radius:4px;}
   </style>
-  <!--
-  COME AGGIUNGERE I TUOI CAPITOLI
-  1) Metti i tuoi file .mp3 nella cartella /audio del repository GitHub (vedi guida nel messaggio accanto).
-  2) Sotto trovi l'array "chapters": modifica l'elenco mantenendo lo schema { title: "Titolo", file: "NOMEFILE.mp3" }.
-  3) NON usare spazi o lettere maiuscole nei nomi dei file; esempio: 01-introduzione.mp3
-  4) Carica/sostituisci i file su GitHub: il sito si aggiornerà da solo.
-  -->
-  <script type="module">
-  // Importiamo Firebase e Firestore
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
-  import { getFirestore } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
-
-  // Configurazione che ti ha dato Firebase (tu l’hai già copiata giusta 👍)
-  const firebaseConfig = {
-    apiKey: "AIzaSyDIJ7LyZMWfWxxZWNGVD1vSAfRDS0M2_P8",
-    authDomain: "libroaudio-d36b5.firebaseapp.com",
-    projectId: "libroaudio-d36b5",
-    storageBucket: "libroaudio-d36b5.firebasestorage.app",
-    messagingSenderId: "1047668815151",
-    appId: "1:1047668815151:web:552fa4dd63b2a847845dda"
-  };
-
-  // Inizializza l’app Firebase
-  const app = initializeApp(firebaseConfig);
- 
-
-  // Rendi disponibile il database a tutto il sito
-  window.db = getFirestore(app);
-</script>
-
 </head>
 <body>
   <div class="wrap">
     <header>
-      <span class="badge" aria-label="Andiamo">❤️ Andiamo</span>
-      <h1 class="title"><span id="her-name">Margherita</span></h1>
-      <p class="subtitle">Capitoli da ascoltare quando vuoi. Premi play e chiudi gli occhi ✨</p>
+      <span class="badge">❤️ Andiamo</span>
+      <h1 class="title">La canzone di Achille</h1>
+      <p class="subtitle">Capitoli da ascoltare quando vuoi ✨</p>
     </header>
 
-    <section class="card hero" aria-label="Presentazione">
-      <div class="heart" aria-hidden="true">💌</div>
-      <p>Questo è uno dei miei libri preferiti, e adoro l'idea di fartelo conoscere così. Spero ti faccia compagnia.</p>
+    <section class="card hero">
+      <p>Questo è uno dei miei libri preferiti, e adoro fartelo conoscere così 💌</p>
     </section>
 
-    <section class="card" aria-label="Elenco capitoli">
+    <section class="card">
       <div class="grid" id="chapters"></div>
     </section>
 
- 
-
-    <p class="footer">Con ❤️ — <span id="footer-name">"Per Margherita"</span></p>
+    <p class="footer">Con ❤️ — Per Margherita</p>
   </div>
 
-<script type="module">
- // Import Firebase modulare
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
-  import { getFirestore, collection, addDoc, query, where, orderBy, getDocs } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
+  <!-- Firebase -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
+    import { getFirestore, collection, addDoc, query, where, orderBy, getDocs } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
+    import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-messaging.js";
 
-  // Config Firebase
-  const firebaseConfig = {
-    apiKey: "AIzaSyDIJ7LyZMWfWxxZWNGVD1vSAfRDS0M2_P8",
-    authDomain: "libroaudio-d36b5.firebaseapp.com",
-    projectId: "libroaudio-d36b5",
-    storageBucket: "libroaudio-d36b5.firebasestorage.app",
-    messagingSenderId: "1047668815151",
-    appId: "1:1047668815151:web:552fa4dd63b2a847845dda"
-  };
+    const firebaseConfig = {
+      apiKey: "AIzaSyDIJ7LyZMWfWxxZWNGVD1vSAfRDS0M2_P8",
+      authDomain: "libroaudio-d36b5.firebaseapp.com",
+      projectId: "libroaudio-d36b5",
+      storageBucket: "libroaudio-d36b5.firebasestorage.app",
+      messagingSenderId: "1047668815151",
+      appId: "1:1047668815151:web:552fa4dd63b2a847845dda"
+    };
 
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
-  
-  // Personalizzazione nome e titolo
-  const herName = "Margherita";
-  const title = "La canzone di Achille";
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const messaging = getMessaging(app);
 
-  document.title = `Per ${herName} — Capitoli Audio`;
-  document.getElementById('her-name').textContent = title;
-  document.getElementById('footer-name').textContent = `Per ${herName}`;
+    // Notifiche
+    async function initNotifications(){
+      try{
+        const permission = await Notification.requestPermission();
+        if(permission==="granted"){
+          const token = await getToken(messaging,{vapidKey:"LA-TUA-VAPID-KEY"});
+          console.log("Token:", token);
+        }
+      }catch(e){console.error(e);}
+    }
+    initNotifications();
+    onMessage(messaging, (payload)=>alert(`📖 Nuovo capitolo: ${payload.notification.title}`));
 
-  // Capitoli
-  const chapters = [
-    { title: "Capitolo 1", file: "01-Capitolo-1.mp3" },
-    { title: "Capitolo 2", file: "02-Capitolo-2.mp3" },
-    { title: "Capitolo 3", file: "03-Capitolo-3.mp3" },
-    { title: "Capitolo 4", file: "04-Capitolo-4.mp3" },
-    { title: "Capitolo 5", file: "05-Capitolo-5.mp3" },
-    { title: "Capitolo 6", file: "06-Capitolo-6.mp3" },
-    { title: "Capitolo 7", file: "07-Capitolo-7.mp3" }
-  ];
+    // Capitoli
+    const chapters=[
+      { title:"Capitolo 1", file:"01-Capitolo-1.mp3"},
+      { title:"Capitolo 2", file:"02-Capitolo-2.mp3"},
+      { title:"Capitolo 3", file:"03-Capitolo-3.mp3"}
+    ];
 
-  const grid = document.getElementById('chapters');
-  const audios = [];
-  const listenedKey = (file) => `listened::${file}`;
+    const grid=document.getElementById("chapters");
+    const audios=[];
+    const listenedKey=(f)=>`listened::${f}`;
 
-  chapters.forEach((c, i) => {
-    const card = document.createElement('div');
-    card.className = 'chapter';
-    card.dataset.file = c.file;
+    chapters.forEach((c,i)=>{
+      const card=document.createElement("div");
+      card.className="chapter";
+      card.dataset.file=c.file;
 
-    // Top row numero + titolo
-    const top = document.createElement('div');
-    top.className = 'row';
+      const top=document.createElement("div");
+      top.className="row";
+      const num=document.createElement("span");
+      num.className="num"; num.textContent=(i+1).toString().padStart(2,"0");
+      const t=document.createElement("div");
+      t.className="ctitle"; t.textContent=c.title;
+      top.appendChild(num); top.appendChild(t);
+      card.appendChild(top);
 
-    const num = document.createElement('span');
-    num.className = 'num';
-    num.textContent = (i+1).toString().padStart(2,'0');
+      const audio=document.createElement("audio");
+      audio.controls=true;
+      const src=document.createElement("source");
+      src.src=`audio/${c.file}`; src.type="audio/mpeg";
+      audio.appendChild(src);
+      card.appendChild(audio);
+      audios.push(audio);
 
-    const titleDiv = document.createElement('div');
-    titleDiv.className = 'ctitle';
-    titleDiv.textContent = c.title;
-
-    const tick = document.createElement('span');
-    tick.className = 'tick';
-    tick.textContent = '✓ Ascoltato';
-
-    top.appendChild(num);
-    top.appendChild(titleDiv);
-    card.appendChild(top);
-    card.appendChild(tick);
-
-    // Audio
-    const audio = document.createElement('audio');
-    audio.setAttribute('controls','');
-    audio.setAttribute('preload','none');
-
-    const source = document.createElement('source');
-    source.src = `audio/${c.file}`;
-    source.type = 'audio/mpeg';
-    audio.appendChild(source);
-    card.appendChild(audio);
-
-    audios.push(audio);
-
-    // Evidenziazione capitoli in ascolto e già ascoltati
-    audio.addEventListener('play', () => {
-      audios.forEach(a => {
-        if(a !== audio){
-          a.pause();
-          const cCard = a.parentElement;
-          if(localStorage.getItem(listenedKey(cCard.dataset.file)) === '1'){
-            cCard.style.backgroundColor = '#9caf88'; // verde medio
-          } else {
-            cCard.style.backgroundColor = ''; // default
+      audio.addEventListener("play",()=>{
+        audios.forEach(a=>{
+          if(a!==audio){
+            a.pause();
+            const cc=a.parentElement;
+            cc.classList.remove("playing");
+            if(localStorage.getItem(listenedKey(cc.dataset.file))==="1") cc.classList.add("done");
           }
-          cCard.classList.remove('playing');
+        });
+        card.classList.add("playing");
+      });
+
+      audio.addEventListener("ended",()=>{
+        card.classList.remove("playing");
+        localStorage.setItem(listenedKey(c.file),"1");
+        card.classList.add("done");
+      });
+
+      if(localStorage.getItem(listenedKey(c.file))==="1") card.classList.add("done");
+
+      // Download
+      const dl=document.createElement("a");
+      dl.href=`audio/${c.file}`; dl.download=c.file;
+      dl.textContent="Scarica";
+      dl.style.fontSize="13px";
+      card.appendChild(dl);
+
+      // Commenti
+      const commentBox=document.createElement("div"); commentBox.className="comment-box";
+      const ta=document.createElement("textarea"); ta.placeholder="Scrivi un pensiero...";
+      const save=document.createElement("button"); save.textContent="Salva";
+      const toggle=document.createElement("button"); toggle.textContent="Vedi commenti";
+      toggle.style.marginLeft="6px"; toggle.style.background="#a4b97f"; toggle.style.color="#2f3120";
+      const list=document.createElement("div"); list.className="comments-list"; list.style.display="none";
+
+      toggle.addEventListener("click",()=>{
+        if(list.style.display==="none"){list.style.display="block"; toggle.textContent="Nascondi commenti";}
+        else{list.style.display="none"; toggle.textContent=list.childElementCount>0?`Vedi commenti (${list.childElementCount})`:"Vedi commenti";}
+      });
+
+      save.addEventListener("click",async()=>{
+        if(ta.value.trim()!==""){
+          await addDoc(collection(db,"commenti"),{capitolo:c.title,testo:ta.value,timestamp:new Date()});
+          ta.value=""; loadComments();
         }
       });
-      card.classList.add('playing');
-      card.style.backgroundColor = '#38761D'; // verde scuro
-    });
 
-    audio.addEventListener('ended', () => {
-      card.classList.remove('playing');
-      localStorage.setItem(listenedKey(c.file), '1');
-      card.style.backgroundColor = '#9caf88'; // verde medio
-    });
-
-    // Stato già ascoltato all’avvio
-    if(localStorage.getItem(listenedKey(c.file)) === '1'){
-      card.style.backgroundColor = '#9caf88';
-    }
-
-    // Download
-    const downloadLink = document.createElement('a');
-    downloadLink.href = `audio/${c.file}`;
-    downloadLink.download = c.file;
-    downloadLink.textContent = 'Scarica';
-    downloadLink.style.marginTop = '6px';
-    downloadLink.style.fontSize = '13px';
-    downloadLink.style.display = 'inline-block';
-    downloadLink.style.color = '#6b8e23';
-    card.appendChild(downloadLink);
-
-    // Box commenti
-    const commentBox = document.createElement('div');
-    commentBox.className = 'comment-box';
-
-    const textarea = document.createElement('textarea');
-    textarea.placeholder = "Scrivi un pensiero su questo capitolo...";
-
-    const saveBtn = document.createElement('button');
-    saveBtn.textContent = "Salva";
-
-    const toggleBtn = document.createElement('button');
-    toggleBtn.textContent = "Vedi commenti";
-    toggleBtn.style.marginLeft = "6px";
-    toggleBtn.style.background = "#a4b97f";
-    toggleBtn.style.color = "#2f3120";
-    toggleBtn.style.border = "none";
-    toggleBtn.style.padding = "6px 10px";
-    toggleBtn.style.borderRadius = "6px";
-    toggleBtn.style.cursor = "pointer";
-
-    const commentsList = document.createElement('div');
-    commentsList.className = "comments-list";
-    commentsList.style.display = "none";
-
-    // Toggle visibilità commenti
-    toggleBtn.addEventListener('click', () => {
-      if(commentsList.style.display === "none"){
-        commentsList.style.display = "block";
-        toggleBtn.textContent = "Nascondi commenti";
-      } else {
-        commentsList.style.display = "none";
-        toggleBtn.textContent = commentsList.childElementCount > 0 
-          ? `Vedi commenti (${commentsList.childElementCount})` 
-          : "Vedi commenti";
-      }
-    });
-
-    // Salvataggio commento su Firebase
-    saveBtn.addEventListener('click', async () => {
-      if(textarea.value.trim() !== ""){
-        await addDoc(collection(window.db, "commenti"), {
-          capitolo: c.title,
-          testo: textarea.value,
-          timestamp: new Date()
+      async function loadComments(){
+        list.innerHTML="";
+        const q=query(collection(db,"commenti"),where("capitolo","==",c.title),orderBy("timestamp","asc"));
+        const snap=await getDocs(q);
+        snap.forEach(doc=>{
+          const p=document.createElement("p");
+          p.textContent="💬 "+doc.data().testo;
+          list.appendChild(p);
         });
-        textarea.value = "";
-        loadComments();
+        toggle.textContent=list.childElementCount>0?`Vedi commenti (${list.childElementCount})`:"Vedi commenti";
       }
+      loadComments();
+
+      commentBox.appendChild(ta); commentBox.appendChild(save); commentBox.appendChild(toggle); commentBox.appendChild(list);
+      card.appendChild(commentBox);
+
+      grid.appendChild(card);
     });
-
-    // Caricamento commenti
-    async function loadComments(chapter){
-      commentsList.innerHTML = "";
-      const q = query(
-        collection(window.db, "commenti"),
-        where("capitolo","==", chapter),
-        orderBy("timestamp","asc")
-      );
-      const snapshot = await getDocs(q);
-      snapshot.forEach(doc => {
-        const p = document.createElement('p');
-        p.textContent = "💬 " + doc.data().testo;
-        commentsList.appendChild(p);
-      });
-      // Aggiorna badge numero commenti
-      toggleBtn.textContent = commentsList.childElementCount > 0
-        ? `Vedi commenti (${commentsList.childElementCount})`
-        : "Vedi commenti";
-    }
-
-    loadComments();
-
-    commentBox.appendChild(textarea);
-    commentBox.appendChild(saveBtn);
-    commentBox.appendChild(toggleBtn);
-    commentBox.appendChild(commentsList);
-    card.appendChild(commentBox);
-
-    grid.appendChild(card);
-  });
-</script>
-
-
-
-
-
+  </script>
 </body>
 </html>
-
