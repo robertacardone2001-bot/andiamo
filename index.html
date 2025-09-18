@@ -212,11 +212,11 @@
       save.addEventListener("click",async()=>{
         if(ta.value.trim()!==""){
           await addDoc(collection(db,"commenti"),{capitolo:c.title,testo:ta.value,timestamp:new Date()});
-          ta.value=""; loadComments();
+          ta.value=""; loadComments(c.title);
         }
       });
 
-      async function loadComments(){
+      async function loadComments(c.title){
         list.innerHTML="";
         const q=query(collection(db,"commenti"),where("capitolo","==",c.title),orderBy("timestamp","asc"));
         const snap=await getDocs(q);
@@ -227,13 +227,43 @@
         });
         toggle.textContent=list.childElementCount>0?`Vedi commenti (${list.childElementCount})`:"Vedi commenti";
       }
-      loadComments();
+      loadComments(c.title);
 
       commentBox.appendChild(ta); commentBox.appendChild(save); commentBox.appendChild(toggle); commentBox.appendChild(list);
       card.appendChild(commentBox);
 
       grid.appendChild(card);
     });
+    saveBtn.addEventListener('click', async () => {
+  if(textarea.value.trim() !== ""){
+    await addDoc(collection(window.db, "commenti"), {
+      capitolo: c.title,
+      testo: textarea.value,
+      timestamp: new Date()
+    });
+    textarea.value = "";
+    loadComments(c.title);
+  }
+});
+
+async function loadComments(chapter){
+  commentsList.innerHTML = "";
+  const q = query(
+    collection(window.db, "commenti"),
+    where("capitolo","==", chapter),
+    orderBy("timestamp","asc")
+  );
+  const snapshot = await getDocs(q);
+  snapshot.forEach(doc => {
+    const p = document.createElement('p');
+    p.textContent = "💬 " + doc.data().testo;
+    commentsList.appendChild(p);
+  });
+  toggleBtn.textContent = commentsList.childElementCount > 0
+    ? `Vedi commenti (${commentsList.childElementCount})`
+    : "Vedi commenti";
+}
+
   </script>
 </body>
 </html>
