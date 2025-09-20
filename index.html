@@ -119,18 +119,47 @@
     const db = getFirestore(app);
     const messaging = getMessaging(app);
 
-    // Notifiche
-    async function initNotifications(){
-      try{
-        const permission = await Notification.requestPermission();
-        if(permission==="granted"){
-          const token = await getToken(messaging,{vapidKey:"LA-TUA-VAPID-KEY"});
-          console.log("Token:", token);
-        }
-      }catch(e){console.error(e);}
+//notifiche//
+  import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-messaging.js";
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
+
+  const firebaseConfig = {
+    apiKey: "…",  // la tua chiave già usata
+    authDomain: "libroaudio-d36b5.firebaseapp.com",
+    projectId: "libroaudio-d36b5",
+    storageBucket: "libroaudio-d36b5.firebasestorage.app",
+    messagingSenderId: "1047668815151",
+    appId: "1:1047668815151:web:552fa4dd63b2a847845dda"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const messaging = getMessaging(app);
+
+  // Richiesta permesso notifiche
+  async function initNotifications() {
+    try {
+      const permission = await Notification.requestPermission();
+      if (permission === "granted") {
+        const token = await getToken(messaging, { vapidKey: "BGVUhdK0Z0UHNNg8s-KtFn4EckucuGSbK9mmGD3To71OvV1IrwrJY2AWIHdlhNeqrJB_UA80sGmsTuEplpJ9PL8" });
+        console.log("Token dispositivo:", token);
+        alert("Notifiche attivate! Ora posso avvisarti quando c’è un nuovo capitolo ✨");
+        // Qui potresti salvare il token in Firestore, così poi lo usi per mandarle notifiche
+      } else {
+        alert("Hai rifiutato le notifiche 😢");
+      }
+    } catch (err) {
+      console.error("Errore attivazione notifiche", err);
     }
-    initNotifications();
-    onMessage(messaging, (payload)=>alert(`📖 Nuovo capitolo: ${payload.notification.title}`));
+  }
+
+  initNotifications();
+
+  // Notifiche ricevute mentre il sito è aperto
+  onMessage(messaging, (payload) => {
+    console.log("Notifica ricevuta:", payload);
+    alert(`📖 Nuovo capitolo: ${payload.notification.title}`);
+  });
+
 
     // Capitoli
     const chapters=[
