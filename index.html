@@ -101,106 +101,127 @@
   </div>
 
   <!-- Firebase -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
-    import { getFirestore, collection, addDoc, query, where, orderBy, getDocs } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
-    import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-messaging.js";
+<script type="module">
+/* ---------------------------
+   IMPORT (solo una volta, top)
+   --------------------------- */
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
+import { getFirestore, collection, addDoc, query, where, orderBy, getDocs } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
+import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-messaging.js";
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyDIJ7LyZMWfWxxZWNGVD1vSAfRDS0M2_P8",
-      authDomain: "libroaudio-d36b5.firebaseapp.com",
-      projectId: "libroaudio-d36b5",
-      storageBucket: "libroaudio-d36b5.firebasestorage.app",
-      messagingSenderId: "1047668815151",
-      appId: "1:1047668815151:web:552fa4dd63b2a847845dda"
-    };
+console.log('Script principale avviato');
 
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-    const messaging = getMessaging(app);
+/* ---------------------------
+   CONFIG FIREBASE (usa la tua)
+   --------------------------- */
+const firebaseConfig = {
+  apiKey: "AIzaSyDIJ7LyZMWfWxxZWNGVD1vSAfRDS0M2_P8",
+  authDomain: "libroaudio-d36b5.firebaseapp.com",
+  projectId: "libroaudio-d36b5",
+  storageBucket: "libroaudio-d36b5.firebasestorage.app",
+  messagingSenderId: "1047668815151",
+  appId: "1:1047668815151:web:552fa4dd63b2a847845dda"
+};
 
-//notifiche//
-  import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-messaging.js";
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
+/* Inizializza Firebase una sola volta */
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const messaging = getMessaging(app);
 
-  const firebaseConfig = {
-    apiKey: "…",  // la tua chiave già usata
-    authDomain: "libroaudio-d36b5.firebaseapp.com",
-    projectId: "libroaudio-d36b5",
-    storageBucket: "libroaudio-d36b5.firebasestorage.app",
-    messagingSenderId: "1047668815151",
-    appId: "1:1047668815151:web:552fa4dd63b2a847845dda"
-  };
-
-  const app = initializeApp(firebaseConfig);
-  const messaging = getMessaging(app);
-
-  // Richiesta permesso notifiche
-  async function initNotifications() {
-    try {
-      const permission = await Notification.requestPermission();
-      if (permission === "granted") {
-        const token = await getToken(messaging, { vapidKey: "BGVUhdK0Z0UHNNg8s-KtFn4EckucuGSbK9mmGD3To71OvV1IrwrJY2AWIHdlhNeqrJB_UA80sGmsTuEplpJ9PL8" });
-        console.log("Token dispositivo:", token);
-        alert("Notifiche attivate! Ora posso avvisarti quando c’è un nuovo capitolo ✨");
-        // Qui potresti salvare il token in Firestore, così poi lo usi per mandarle notifiche
-      } else {
-        alert("Hai rifiutato le notifiche 😢");
-      }
-    } catch (err) {
-      console.error("Errore attivazione notifiche", err);
+/* ---------------------------
+   NOTIFICHE (opzionale)
+   - Sostituisci INSERISCI_LA_TUA_VAPID_KEY con la VAPID pubblica che trovi in Firebase Console
+   --------------------------- */
+async function initNotifications(){
+  try{
+    const permission = await Notification.requestPermission();
+    if(permission === "granted"){
+      const vapid = "INSERISCI_LA_TUA_VAPID_KEY"; // metti qui la tua VAPID key (Web Push)
+      const token = await getToken(messaging, { vapidKey: BGVUhdK0Z0UHNNg8s-KtFn4EckucuGSbK9mmGD3To71OvV1IrwrJY2AWIHdlhNeqrJB_UA80sGmsTuEplpJ9PL8 });
+      console.log("Token dispositivo per notifiche:", token);
+      // Se vuoi salvare il token in Firestore per inviare notifiche dopo:
+      // await addDoc(collection(db, "tokens"), { token, createdAt: new Date() });
+    } else {
+      console.log("Permesso notifiche non concesso");
     }
+  }catch(err){
+    console.error("Errore initNotifications:", err);
   }
+}
+initNotifications();
 
-  initNotifications();
+/* Ricevere notifiche mentre la pagina è aperta */
+onMessage(messaging, (payload) => {
+  console.log("Notifica in foreground:", payload);
+  if(payload?.notification?.title){
+    alert(`📖 ${payload.notification.title}\n\n${payload.notification.body || ""}`);
+  }
+});
 
-  // Notifiche ricevute mentre il sito è aperto
-  onMessage(messaging, (payload) => {
-    console.log("Notifica ricevuta:", payload);
-    alert(`📖 Nuovo capitolo: ${payload.notification.title}`);
-  });
+/* ---------------------------
+   CAPITOLI + COMMENTI
+   --------------------------- */
+const chapters = [
+  { title: "Capitolo 1", file: "01-Capitolo-1.mp3" },
+  { title: "Capitolo 2", file: "02-Capitolo-2.mp3" },
+  { title: "Capitolo 3", file: "03-Capitolo-3.mp3" },
+  { title: "Capitolo 4", file: "04-Capitolo-4.mp3" },
+  { title: "Capitolo 5", file: "05-Capitolo-5.mp3" },
+  { title: "Capitolo 6", file: "06-Capitolo-6.mp3" },
+  { title: "Capitolo 7", file: "07-Capitolo-7.mp3" }
+];
 
-
-    // Capitoli
-    const chapters=[
-      { title:"Capitolo 1", file:"01-Capitolo-1.mp3"},
-      { title:"Capitolo 2", file:"02-Capitolo-2.mp3"},
-      { title:"Capitolo 3", file:"03-Capitolo-3.mp3"},
-      { title:"Capitolo 4", file:"04-Capitolo-4.mp3"},
-      { title:"Capitolo 5", file:"05-Capitolo-5.mp3"},
-      { title:"Capitolo 6", file:"06-Capitolo-6.mp3"},
-      { title:"Capitolo 7", file:"07-Capitolo-7.mp3"},
-    ];
-
-    const grid = document.getElementById("chapters");
+const grid = document.getElementById("chapters");
 const audios = [];
 const listenedKey = (f) => `listened::${f}`;
 
+/* Funzione per caricare i commenti di un singolo capitolo */
+async function loadCommentsFor(chapterTitle, commentsList, toggleBtn) {
+  commentsList.innerHTML = "";
+  try {
+    const q = query(
+      collection(db, "commenti"),
+      where("capitolo", "==", chapterTitle),
+      orderBy("timestamp", "asc")
+    );
+    const snap = await getDocs(q);
+    snap.forEach(doc => {
+      const p = document.createElement("p");
+      p.textContent = "💬 " + doc.data().testo;
+      commentsList.appendChild(p);
+    });
+  } catch (err) {
+    console.error("Errore loadCommentsFor:", err);
+    const p = document.createElement("p");
+    p.textContent = "Errore caricamento commenti";
+    commentsList.appendChild(p);
+  }
+  toggleBtn.textContent = commentsList.childElementCount > 0
+    ? `Vedi commenti (${commentsList.childElementCount})`
+    : "Vedi commenti";
+}
+
+/* Crea elementi per ogni capitolo */
 chapters.forEach((c, i) => {
-  // Card capitolo
   const card = document.createElement("div");
   card.className = "chapter";
   card.dataset.file = c.file;
 
-  // Top row: numero + titolo
   const top = document.createElement("div");
   top.className = "row";
-
   const num = document.createElement("span");
   num.className = "num";
   num.textContent = (i + 1).toString().padStart(2, "0");
-
   const titleDiv = document.createElement("div");
   titleDiv.className = "ctitle";
   titleDiv.textContent = c.title;
+  top.append(num, titleDiv);
+  card.append(top);
 
-  top.appendChild(num);
-  top.appendChild(titleDiv);
-  card.appendChild(top);
-
-  // Audio
+  // audio
   const audio = document.createElement("audio");
   audio.controls = true;
+  audio.preload = "none";
   const source = document.createElement("source");
   source.src = `audio/${c.file}`;
   source.type = "audio/mpeg";
@@ -208,16 +229,14 @@ chapters.forEach((c, i) => {
   card.appendChild(audio);
   audios.push(audio);
 
-  // Evidenzia capitoli in ascolto / ascoltati
+  // play / ended
   audio.addEventListener("play", () => {
     audios.forEach(a => {
       if (a !== audio) {
         a.pause();
-        const cCard = a.parentElement;
-        cCard.classList.remove("playing");
-        if (localStorage.getItem(listenedKey(cCard.dataset.file)) === "1") {
-          cCard.classList.add("done");
-        }
+        const otherCard = a.parentElement;
+        otherCard.classList.remove("playing");
+        if (localStorage.getItem(listenedKey(otherCard.dataset.file)) === "1") otherCard.classList.add("done");
       }
     });
     card.classList.add("playing");
@@ -231,7 +250,7 @@ chapters.forEach((c, i) => {
 
   if (localStorage.getItem(listenedKey(c.file)) === "1") card.classList.add("done");
 
-  // Download
+  // download
   const dl = document.createElement("a");
   dl.href = `audio/${c.file}`;
   dl.download = c.file;
@@ -239,27 +258,22 @@ chapters.forEach((c, i) => {
   dl.style.fontSize = "13px";
   card.appendChild(dl);
 
-  // Commenti
+  // comment box
   const commentBox = document.createElement("div");
   commentBox.className = "comment-box";
-
   const textarea = document.createElement("textarea");
   textarea.placeholder = "Scrivi un pensiero su questo capitolo...";
-
   const saveBtn = document.createElement("button");
   saveBtn.textContent = "Salva";
-
   const toggleBtn = document.createElement("button");
   toggleBtn.textContent = "Vedi commenti";
   toggleBtn.style.marginLeft = "6px";
   toggleBtn.style.background = "#a4b97f";
   toggleBtn.style.color = "#2f3120";
-
   const commentsList = document.createElement("div");
   commentsList.className = "comments-list";
   commentsList.style.display = "none";
 
-  // Toggle visibilità commenti
   toggleBtn.addEventListener("click", () => {
     if (commentsList.style.display === "none") {
       commentsList.style.display = "block";
@@ -272,50 +286,35 @@ chapters.forEach((c, i) => {
     }
   });
 
-  // Salvataggio commenti su Firebase
   saveBtn.addEventListener("click", async () => {
-    if (textarea.value.trim() !== "") {
+    if (textarea.value.trim() === "") return;
+    try {
       await addDoc(collection(db, "commenti"), {
         capitolo: c.title,
         testo: textarea.value,
         timestamp: new Date()
       });
       textarea.value = "";
-      loadComments(c.title);
+      await loadCommentsFor(c.title, commentsList, toggleBtn);
+      // apri commenti automaticamente appena salvato (opzionale):
+      commentsList.style.display = "block";
+      toggleBtn.textContent = "Nascondi commenti";
+    } catch (err) {
+      console.error("Errore salvataggio commento:", err);
     }
   });
 
-  // Caricamento commenti
-  async function loadComments(chapter) {
-    commentsList.innerHTML = "";
-    const q = query(
-      collection(db, "commenti"),
-      where("capitolo", "==", chapter),
-      orderBy("timestamp", "asc")
-    );
-    const snapshot = await getDocs(q);
-    snapshot.forEach(doc => {
-      const p = document.createElement("p");
-      p.textContent = "💬 " + doc.data().testo;
-      commentsList.appendChild(p);
-    });
-    toggleBtn.textContent = commentsList.childElementCount > 0
-      ? `Vedi commenti (${commentsList.childElementCount})`
-      : "Vedi commenti";
-  }
+  // carica commenti di questo capitolo
+  loadCommentsFor(c.title, commentsList, toggleBtn);
 
-  loadComments(c.title);
-
-  commentBox.appendChild(textarea);
-  commentBox.appendChild(saveBtn);
-  commentBox.appendChild(toggleBtn);
-  commentBox.appendChild(commentsList);
+  commentBox.append(textarea, saveBtn, toggleBtn, commentsList);
   card.appendChild(commentBox);
 
   grid.appendChild(card);
 });
 
+console.log("Capitoli inseriti nel DOM correttamente");
+</script>
 
-  </script>
 </body>
 </html>
