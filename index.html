@@ -87,6 +87,28 @@
       <span class="badge">❤️ Andiamo</span>
       <h1 class="title">La canzone di Achille</h1>
       <p class="subtitle">Capitoli da ascoltare quando vuoi ✨</p>
+      
+      <!-- INCOLLA QUI: menu a tendina per citazioni (metti dentro <header>) -->
+<div id="citazioni-menu" style="margin-top:12px; text-align:center;">
+  <label for="citazioni-select" style="margin-right:8px; font-weight:600; color:var(--muted)">Le mie citazioni:</label>
+  <select id="citazioni-select" aria-label="Vai alla citazione">
+    <option value="">-- scegli una citazione --</option>
+    <option value="citazioni.html#c1">Citazione 1</option>
+    <option value="citazioni.html#c2">Citazione 2</option>
+    <option value="citazioni.html#c3">Citazione 3</option>
+  </select>
+</div>
+
+<!-- piccolo script che manda alla pagina scelta -->
+<script>
+  document.getElementById('citazioni-select').addEventListener('change', function() {
+    if (this.value) {
+      // vai alla pagina/ancora scelta
+      window.location.href = this.value;
+    }
+  });
+</script>
+
     </header>
 
     <section class="card hero">
