@@ -79,6 +79,20 @@
     .comment-box button{background:var(--accent);color:#fff;border:none;padding:6px 12px;border-radius:6px;cursor:pointer;}
     .comment-box button:hover{background:var(--accent-2);}
     .comments-list p{font-size:14px;margin:4px 0;padding:4px;background:#e6eed1;border-radius:4px;}
+    
+    #timerButton {
+  background-color: #556b2f;
+  color: #fff;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+#timerButton:hover {
+  background-color: #6b8e23;
+}
+
   </style>
 </head>
 <body>
@@ -251,6 +265,68 @@ chapters.forEach((c, i) => {
   audio.appendChild(source);
   card.appendChild(audio);
   audios.push(audio);
+
+  // --- Timer per ogni capitolo ---
+const timerDiv = document.createElement("div");
+timerDiv.style.marginTop = "10px";
+
+const timerButton = document.createElement("button");
+timerButton.textContent = "🕒 Imposta timer";
+timerButton.style.background = "#556b2f";
+timerButton.style.color = "#fff";
+timerButton.style.border = "none";
+timerButton.style.padding = "6px 12px";
+timerButton.style.borderRadius = "8px";
+timerButton.style.cursor = "pointer";
+timerButton.style.marginRight = "10px";
+
+const timerStatus = document.createElement("span");
+timerStatus.style.fontSize = "13px";
+timerStatus.style.fontStyle = "italic";
+timerStatus.style.color = "#374619";
+
+timerDiv.appendChild(timerButton);
+timerDiv.appendChild(timerStatus);
+card.appendChild(timerDiv);
+
+// --- Logica del timer ---
+let sleepTimer = null;
+let remainingSeconds = 0;
+
+timerButton.addEventListener("click", () => {
+  const minutes = parseInt(prompt("Tra quanti minuti vuoi che l’audio si fermi? (es. 5, 10, 15)"));
+  if (isNaN(minutes) || minutes <= 0) {
+    alert("Inserisci un numero valido di minuti!");
+    return;
+  }
+
+  if (sleepTimer) {
+    clearInterval(sleepTimer);
+  }
+
+  remainingSeconds = minutes * 60;
+  updateTimerStatus();
+
+  sleepTimer = setInterval(() => {
+    remainingSeconds--;
+    updateTimerStatus();
+
+    if (remainingSeconds <= 0) {
+      clearInterval(sleepTimer);
+      audio.pause();
+      timerStatus.textContent = "⏰ Timer terminato – buona notte 💫";
+    }
+  }, 1000);
+});
+
+function updateTimerStatus() {
+  const minutesLeft = Math.floor(remainingSeconds / 60);
+  const secondsLeft = remainingSeconds % 60;
+  timerStatus.textContent = `L’audio si fermerà tra ${minutesLeft}:${secondsLeft
+    .toString()
+    .padStart(2, "0")}`;
+}
+
 
   // play / ended
   audio.addEventListener("play", () => {
