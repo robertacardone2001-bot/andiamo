@@ -79,48 +79,102 @@
     .comment-box button{background:var(--accent);color:#fff;border:none;padding:6px 12px;border-radius:6px;cursor:pointer;}
     .comment-box button:hover{background:var(--accent-2);}
     .comments-list p{font-size:14px;margin:4px 0;padding:4px;background:#e6eed1;border-radius:4px;}
-    
-    #timerButton {
-  background-color: #556b2f;
-  color: #fff;
-  border: none;
-  padding: 6px 12px;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background 0.3s;
-}
-#timerButton:hover {
-  background-color: #6b8e23;
-}
 
+    #timerButton {
+      background-color: #556b2f;
+      color: #fff;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    #timerButton:hover { background-color: #6b8e23; }
+
+    /* --- MENU LATERALE --- */
+    .menu-btn {
+      position: fixed;
+      top: 16px;
+      left: 16px;
+      font-size: 28px;
+      cursor: pointer;
+      color: #556b2f;
+      z-index: 1001;
+      background: rgba(255,255,255,0.8);
+      padding: 4px 10px;
+      border-radius: 8px;
+      transition: background 0.3s;
+    }
+    .menu-btn:hover { background: #e9eddb; }
+
+    .side-menu {
+      height: 100%;
+      width: 0;
+      position: fixed;
+      z-index: 1002;
+      top: 0;
+      left: 0;
+      background-color: #f4f4eb;
+      overflow-x: hidden;
+      transition: 0.3s;
+      padding-top: 60px;
+      box-shadow: 2px 0 8px rgba(0,0,0,0.1);
+    }
+    .side-menu a {
+      padding: 12px 24px;
+      text-decoration: none;
+      font-size: 18px;
+      color: #374619;
+      display: block;
+      transition: background 0.2s;
+    }
+    .side-menu a:hover { background-color: #e6eed1; }
+    .side-menu h2 {
+      margin-left: 24px;
+      font-size: 20px;
+      color: #6b8e23;
+    }
+    .side-menu .close-btn {
+      position: absolute;
+      top: 12px;
+      right: 20px;
+      font-size: 32px;
+      text-decoration: none;
+      color: #6b8e23;
+    }
+
+    .overlay {
+      position: fixed;
+      display: none;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.3);
+      z-index: 1000;
+      transition: opacity 0.3s;
+    }
+    .overlay.show { display: block; }
   </style>
 </head>
 <body>
+
+  <!-- MENU LATERALE -->
+  <div id="menuBtn" class="menu-btn">☰</div>
+
+  <nav id="sideMenu" class="side-menu">
+    <a href="javascript:void(0)" class="close-btn">&times;</a>
+    <h2>📚 Menu</h2>
+    <a href="citazioni.html">🌿 Le mie citazioni preferite</a>
+  </nav>
+
+  <div id="overlay" class="overlay"></div>
+
   <div class="wrap">
     <header>
       <span class="badge">❤️ Andiamo</span>
       <h1 class="title">La canzone di Achille</h1>
       <p class="subtitle">Capitoli da ascoltare quando vuoi ✨</p>
-      
-      <!-- INCOLLA QUI: menu a tendina per citazioni (metti dentro <header>) -->
-<div id="citazioni-menu" style="margin-top:12px; text-align:center;">
-  <label for="citazioni-select" style="margin-right:8px; font-weight:600; color:var(--muted)">Le mie citazioni:</label>
-  <select id="citazioni-select" aria-label="Vai alla citazione">
-    <option value="">-- scegli una citazione --</option>
-    <option value="citazioni.html#c1">Citazioni</option>
-  </select>
-</div>
-
-<!-- piccolo script che manda alla pagina scelta -->
-<script>
-  document.getElementById('citazioni-select').addEventListener('change', function() {
-    if (this.value) {
-      // vai alla pagina/ancora scelta
-      window.location.href = this.value;
-    }
-  });
-</script>
-
     </header>
 
     <section class="card hero">
@@ -134,285 +188,247 @@
     <p class="footer">Con ❤️ — Per Margherita</p>
   </div>
 
-  <!-- Firebase -->
-<script type="module">
-/* ---------------------------
-   IMPORT (solo una volta, top)
-   --------------------------- */
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
-import { getFirestore, collection, addDoc, query, where, orderBy, getDocs } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
-import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-messaging.js";
+  <!-- Firebase + Capitoli -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
+    import { getFirestore, collection, addDoc, query, where, orderBy, getDocs } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
 
-console.log('Script principale avviato');
+    const firebaseConfig = {
+      apiKey: "AIzaSyDIJ7LyZMWfWxxZWNGVD1vSAfRDS0M2_P8",
+      authDomain: "libroaudio-d36b5.firebaseapp.com",
+      projectId: "libroaudio-d36b5",
+      storageBucket: "libroaudio-d36b5.firebasestorage.app",
+      messagingSenderId: "1047668815151",
+      appId: "1:1047668815151:web:552fa4dd63b2a847845dda"
+    };
 
-/* ---------------------------
-   CONFIG FIREBASE (usa la tua)
-   --------------------------- */
-const firebaseConfig = {
-  apiKey: "AIzaSyDIJ7LyZMWfWxxZWNGVD1vSAfRDS0M2_P8",
-  authDomain: "libroaudio-d36b5.firebaseapp.com",
-  projectId: "libroaudio-d36b5",
-  storageBucket: "libroaudio-d36b5.firebasestorage.app",
-  messagingSenderId: "1047668815151",
-  appId: "1:1047668815151:web:552fa4dd63b2a847845dda"
-};
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
 
-/* Inizializza Firebase una sola volta */
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-const messaging = getMessaging(app);
+    const chapters = [
+      { title: "Capitolo 1", file: "01-Capitolo-1.mp3" },
+      { title: "Capitolo 2", file: "02-Capitolo-2.mp3" },
+      { title: "Capitolo 3", file: "03-Capitolo-3.mp3" },
+      { title: "Capitolo 4", file: "04-Capitolo-4.mp3" },
+      { title: "Capitolo 5", file: "05-Capitolo-5.mp3" },
+      { title: "Capitolo 6", file: "06-Capitolo-6.mp3" },
+      { title: "Capitolo 7", file: "07-Capitolo-7.mp3" },
+      { title: "Capitolo 8", file: "08-Capitolo-8.mp3" },
+      { title: "Capitolo 9", file: "09-Capitolo-9.mp3" }
+    ];
 
-/* ---------------------------
-   NOTIFICHE (opzionale)
-   - Sostituisci INSERISCI_LA_TUA_VAPID_KEY con la VAPID pubblica che trovi in Firebase Console
-   --------------------------- */
-async function initNotifications(){
-  try{
-    const permission = await Notification.requestPermission();
-    if(permission === "granted"){
-      const vapid = "INSERISCI_LA_TUA_VAPID_KEY"; // metti qui la tua VAPID key (Web Push)
-      const token = await getToken(messaging, { vapidKey: BGVUhdK0Z0UHNNg8s-KtFn4EckucuGSbK9mmGD3To71OvV1IrwrJY2AWIHdlhNeqrJB_UA80sGmsTuEplpJ9PL8 });
-      console.log("Token dispositivo per notifiche:", token);
-      // Se vuoi salvare il token in Firestore per inviare notifiche dopo:
-      // await addDoc(collection(db, "tokens"), { token, createdAt: new Date() });
-    } else {
-      console.log("Permesso notifiche non concesso");
-    }
-  }catch(err){
-    console.error("Errore initNotifications:", err);
-  }
-}
-initNotifications();
+    const grid = document.getElementById("chapters");
+    const audios = [];
+    const listenedKey = (f) => `listened::${f}`;
 
-/* Ricevere notifiche mentre la pagina è aperta */
-onMessage(messaging, (payload) => {
-  console.log("Notifica in foreground:", payload);
-  if(payload?.notification?.title){
-    alert(`📖 ${payload.notification.title}\n\n${payload.notification.body || ""}`);
-  }
-});
-
-/* ---------------------------
-   CAPITOLI + COMMENTI
-   --------------------------- */
-const chapters = [
-  { title: "Capitolo 1", file: "01-Capitolo-1.mp3" },
-  { title: "Capitolo 2", file: "02-Capitolo-2.mp3" },
-  { title: "Capitolo 3", file: "03-Capitolo-3.mp3" },
-  { title: "Capitolo 4", file: "04-Capitolo-4.mp3" },
-  { title: "Capitolo 5", file: "05-Capitolo-5.mp3" },
-  { title: "Capitolo 6", file: "06-Capitolo-6.mp3" },
-  { title: "Capitolo 7", file: "07-Capitolo-7.mp3" },
-  { title: "Capitolo 8", file: "08-Capitolo-8.mp3" },
-  { title: "Capitolo 9", file: "09-Capitolo-9.mp3" }
-];
-
-const grid = document.getElementById("chapters");
-const audios = [];
-const listenedKey = (f) => `listened::${f}`;
-
-/* Funzione per caricare i commenti di un singolo capitolo */
-async function loadCommentsFor(chapterTitle, commentsList, toggleBtn) {
-  commentsList.innerHTML = "";
-  try {
-    const q = query(
-      collection(db, "commenti"),
-      where("capitolo", "==", chapterTitle),
-      orderBy("timestamp", "asc")
-    );
-    const snap = await getDocs(q);
-    snap.forEach(doc => {
-      const p = document.createElement("p");
-      p.textContent = "💬 " + doc.data().testo;
-      commentsList.appendChild(p);
-    });
-  } catch (err) {
-    console.error("Errore loadCommentsFor:", err);
-    const p = document.createElement("p");
-    p.textContent = "Errore caricamento commenti";
-    commentsList.appendChild(p);
-  }
-  toggleBtn.textContent = commentsList.childElementCount > 0
-    ? `Vedi commenti (${commentsList.childElementCount})`
-    : "Vedi commenti";
-}
-
-/* Crea elementi per ogni capitolo */
-chapters.forEach((c, i) => {
-  const card = document.createElement("div");
-  card.className = "chapter";
-  card.dataset.file = c.file;
-
-  const top = document.createElement("div");
-  top.className = "row";
-  const num = document.createElement("span");
-  num.className = "num";
-  num.textContent = (i + 1).toString().padStart(2, "0");
-  const titleDiv = document.createElement("div");
-  titleDiv.className = "ctitle";
-  titleDiv.textContent = c.title;
-  top.append(num, titleDiv);
-  card.append(top);
-
-  // audio
-  const audio = document.createElement("audio");
-  audio.controls = true;
-  audio.preload = "none";
-  const source = document.createElement("source");
-  source.src = `audio/${c.file}`;
-  source.type = "audio/mpeg";
-  audio.appendChild(source);
-  card.appendChild(audio);
-  audios.push(audio);
-
-  // --- Timer per ogni capitolo ---
-const timerDiv = document.createElement("div");
-timerDiv.style.marginTop = "10px";
-
-const timerButton = document.createElement("button");
-timerButton.textContent = "🕒 Imposta timer";
-timerButton.style.background = "#556b2f";
-timerButton.style.color = "#fff";
-timerButton.style.border = "none";
-timerButton.style.padding = "6px 12px";
-timerButton.style.borderRadius = "8px";
-timerButton.style.cursor = "pointer";
-timerButton.style.marginRight = "10px";
-
-const timerStatus = document.createElement("span");
-timerStatus.style.fontSize = "13px";
-timerStatus.style.fontStyle = "italic";
-timerStatus.style.color = "#374619";
-
-timerDiv.appendChild(timerButton);
-timerDiv.appendChild(timerStatus);
-card.appendChild(timerDiv);
-
-// --- Logica del timer ---
-let sleepTimer = null;
-let remainingSeconds = 0;
-
-timerButton.addEventListener("click", () => {
-  const minutes = parseInt(prompt("Tra quanti minuti vuoi che l’audio si fermi? (es. 5, 10, 15)"));
-  if (isNaN(minutes) || minutes <= 0) {
-    alert("Inserisci un numero valido di minuti!");
-    return;
-  }
-
-  if (sleepTimer) {
-    clearInterval(sleepTimer);
-  }
-
-  remainingSeconds = minutes * 60;
-  updateTimerStatus();
-
-  sleepTimer = setInterval(() => {
-    remainingSeconds--;
-    updateTimerStatus();
-
-    if (remainingSeconds <= 0) {
-      clearInterval(sleepTimer);
-      audio.pause();
-      timerStatus.textContent = "⏰ Timer terminato – buona notte 💫";
-    }
-  }, 1000);
-});
-
-function updateTimerStatus() {
-  const minutesLeft = Math.floor(remainingSeconds / 60);
-  const secondsLeft = remainingSeconds % 60;
-  timerStatus.textContent = `L’audio si fermerà tra ${minutesLeft}:${secondsLeft
-    .toString()
-    .padStart(2, "0")}`;
-}
-
-
-  // play / ended
-  audio.addEventListener("play", () => {
-    audios.forEach(a => {
-      if (a !== audio) {
-        a.pause();
-        const otherCard = a.parentElement;
-        otherCard.classList.remove("playing");
-        if (localStorage.getItem(listenedKey(otherCard.dataset.file)) === "1") otherCard.classList.add("done");
+    async function loadCommentsFor(chapterTitle, commentsList, toggleBtn) {
+      commentsList.innerHTML = "";
+      try {
+        const q = query(collection(db, "commenti"),
+          where("capitolo", "==", chapterTitle),
+          orderBy("timestamp", "asc")
+        );
+        const snap = await getDocs(q);
+        snap.forEach(doc => {
+          const p = document.createElement("p");
+          p.textContent = "💬 " + doc.data().testo;
+          commentsList.appendChild(p);
+        });
+      } catch (err) {
+        console.error("Errore loadCommentsFor:", err);
+        const p = document.createElement("p");
+        p.textContent = "Errore caricamento commenti";
+        commentsList.appendChild(p);
       }
-    });
-    card.classList.add("playing");
-  });
-
-  audio.addEventListener("ended", () => {
-    card.classList.remove("playing");
-    localStorage.setItem(listenedKey(c.file), "1");
-    card.classList.add("done");
-  });
-
-  if (localStorage.getItem(listenedKey(c.file)) === "1") card.classList.add("done");
-
-  // download
-  const dl = document.createElement("a");
-  dl.href = `audio/${c.file}`;
-  dl.download = c.file;
-  dl.textContent = "Scarica";
-  dl.style.fontSize = "13px";
-  card.appendChild(dl);
-
-  // comment box
-  const commentBox = document.createElement("div");
-  commentBox.className = "comment-box";
-  const textarea = document.createElement("textarea");
-  textarea.placeholder = "Scrivi un pensiero su questo capitolo...";
-  const saveBtn = document.createElement("button");
-  saveBtn.textContent = "Salva";
-  const toggleBtn = document.createElement("button");
-  toggleBtn.textContent = "Vedi commenti";
-  toggleBtn.style.marginLeft = "6px";
-  toggleBtn.style.background = "#a4b97f";
-  toggleBtn.style.color = "#2f3120";
-  const commentsList = document.createElement("div");
-  commentsList.className = "comments-list";
-  commentsList.style.display = "none";
-
-  toggleBtn.addEventListener("click", () => {
-    if (commentsList.style.display === "none") {
-      commentsList.style.display = "block";
-      toggleBtn.textContent = "Nascondi commenti";
-    } else {
-      commentsList.style.display = "none";
       toggleBtn.textContent = commentsList.childElementCount > 0
         ? `Vedi commenti (${commentsList.childElementCount})`
         : "Vedi commenti";
     }
-  });
 
-  saveBtn.addEventListener("click", async () => {
-    if (textarea.value.trim() === "") return;
-    try {
-      await addDoc(collection(db, "commenti"), {
-        capitolo: c.title,
-        testo: textarea.value,
-        timestamp: new Date()
+    chapters.forEach((c, i) => {
+      const card = document.createElement("div");
+      card.className = "chapter";
+      card.dataset.file = c.file;
+
+      const top = document.createElement("div");
+      top.className = "row";
+      const num = document.createElement("span");
+      num.className = "num";
+      num.textContent = (i + 1).toString().padStart(2, "0");
+      const titleDiv = document.createElement("div");
+      titleDiv.className = "ctitle";
+      titleDiv.textContent = c.title;
+      top.append(num, titleDiv);
+      card.append(top);
+
+      // audio
+      const audio = document.createElement("audio");
+      audio.controls = true;
+      audio.preload = "none";
+      const source = document.createElement("source");
+      source.src = `audio/${c.file}`;
+      source.type = "audio/mpeg";
+      audio.appendChild(source);
+      card.appendChild(audio);
+      audios.push(audio);
+
+      // timer
+      const timerDiv = document.createElement("div");
+      timerDiv.style.marginTop = "10px";
+
+      const timerButton = document.createElement("button");
+      timerButton.textContent = "🕒 Imposta timer";
+      timerButton.style.background = "#556b2f";
+      timerButton.style.color = "#fff";
+      timerButton.style.border = "none";
+      timerButton.style.padding = "6px 12px";
+      timerButton.style.borderRadius = "8px";
+      timerButton.style.cursor = "pointer";
+      timerButton.style.marginRight = "10px";
+
+      const timerStatus = document.createElement("span");
+      timerStatus.style.fontSize = "13px";
+      timerStatus.style.fontStyle = "italic";
+      timerStatus.style.color = "#374619";
+
+      timerDiv.appendChild(timerButton);
+      timerDiv.appendChild(timerStatus);
+      card.appendChild(timerDiv);
+
+      let sleepTimer = null;
+      let remainingSeconds = 0;
+
+      timerButton.addEventListener("click", () => {
+        const minutes = parseInt(prompt("Tra quanti minuti vuoi che l’audio si fermi? (es. 5, 10, 15)"));
+        if (isNaN(minutes) || minutes <= 0) {
+          alert("Inserisci un numero valido di minuti!");
+          return;
+        }
+        if (sleepTimer) clearInterval(sleepTimer);
+        remainingSeconds = minutes * 60;
+        updateTimerStatus();
+        sleepTimer = setInterval(() => {
+          remainingSeconds--;
+          updateTimerStatus();
+          if (remainingSeconds <= 0) {
+            clearInterval(sleepTimer);
+            audio.pause();
+            timerStatus.textContent = "⏰ Timer terminato – buona notte 💫";
+          }
+        }, 1000);
       });
-      textarea.value = "";
-      await loadCommentsFor(c.title, commentsList, toggleBtn);
-      // apri commenti automaticamente appena salvato (opzionale):
-      commentsList.style.display = "block";
-      toggleBtn.textContent = "Nascondi commenti";
-    } catch (err) {
-      console.error("Errore salvataggio commento:", err);
-    }
-  });
 
-  // carica commenti di questo capitolo
-  loadCommentsFor(c.title, commentsList, toggleBtn);
+      function updateTimerStatus() {
+        const minutesLeft = Math.floor(remainingSeconds / 60);
+        const secondsLeft = remainingSeconds % 60;
+        timerStatus.textContent = `L’audio si fermerà tra ${minutesLeft}:${secondsLeft.toString().padStart(2,"0")}`;
+      }
 
-  commentBox.append(textarea, saveBtn, toggleBtn, commentsList);
-  card.appendChild(commentBox);
+      // play / ended
+      audio.addEventListener("play", () => {
+        audios.forEach(a => {
+          if (a !== audio) {
+            a.pause();
+            const otherCard = a.parentElement;
+            otherCard.classList.remove("playing");
+            if (localStorage.getItem(listenedKey(otherCard.dataset.file)) === "1") otherCard.classList.add("done");
+          }
+        });
+        card.classList.add("playing");
+      });
 
-  grid.appendChild(card);
-});
+      audio.addEventListener("ended", () => {
+        card.classList.remove("playing");
+        localStorage.setItem(listenedKey(c.file), "1");
+        card.classList.add("done");
+      });
 
-console.log("Capitoli inseriti nel DOM correttamente");
-</script>
+      if (localStorage.getItem(listenedKey(c.file)) === "1") card.classList.add("done");
+
+      // download
+      const dl = document.createElement("a");
+      dl.href = `audio/${c.file}`;
+      dl.download = c.file;
+      dl.textContent = "Scarica";
+      dl.style.fontSize = "13px";
+      card.appendChild(dl);
+
+      // comment box
+      const commentBox = document.createElement("div");
+      commentBox.className = "comment-box";
+      const textarea = document.createElement("textarea");
+      textarea.placeholder = "Scrivi un pensiero su questo capitolo...";
+      const saveBtn = document.createElement("button");
+      saveBtn.textContent = "Salva";
+      const toggleBtn = document.createElement("button");
+      toggleBtn.textContent = "Vedi commenti";
+      toggleBtn.style.marginLeft = "6px";
+      toggleBtn.style.background = "#a4b97f";
+      toggleBtn.style.color = "#2f3120";
+      const commentsList = document.createElement("div");
+      commentsList.className = "comments-list";
+      commentsList.style.display = "none";
+
+      toggleBtn.addEventListener("click", () => {
+        if (commentsList.style.display === "none") {
+          commentsList.style.display = "block";
+          toggleBtn.textContent = "Nascondi commenti";
+        } else {
+          commentsList.style.display = "none";
+          toggleBtn.textContent = commentsList.childElementCount > 0
+            ? `Vedi commenti (${commentsList.childElementCount})`
+            : "Vedi commenti";
+        }
+      });
+
+      saveBtn.addEventListener("click", async () => {
+        if (textarea.value.trim() === "") return;
+        try {
+          await addDoc(collection(db, "commenti"), {
+            capitolo: c.title,
+            testo: textarea.value,
+            timestamp: new Date()
+          });
+          textarea.value = "";
+          await loadCommentsFor(c.title, commentsList, toggleBtn);
+          commentsList.style.display = "block";
+          toggleBtn.textContent = "Nascondi commenti";
+        } catch (err) {
+          console.error("Errore salvataggio commento:", err);
+        }
+      });
+
+      loadCommentsFor(c.title, commentsList, toggleBtn);
+      commentBox.append(textarea, saveBtn, toggleBtn, commentsList);
+      card.appendChild(commentBox);
+
+      grid.appendChild(card);
+    });
+
+  </script>
+
+  <!-- Menu laterale script -->
+  <script>
+    const menuBtn = document.getElementById("menuBtn");
+    const sideMenu = document.getElementById("sideMenu");
+    const overlay = document.getElementById("overlay");
+    const closeBtn = sideMenu.querySelector(".close-btn");
+
+    menuBtn.addEventListener("click", () => {
+      sideMenu.style.width = "250px";
+      overlay.classList.add("show");
+    });
+
+    closeBtn.addEventListener("click", () => {
+      sideMenu.style.width = "0";
+      overlay.classList.remove("show");
+    });
+
+    overlay.addEventListener("click", () => {
+      sideMenu.style.width = "0";
+      overlay.classList.remove("show");
+    });
+  </script>
 
 </body>
 </html>
