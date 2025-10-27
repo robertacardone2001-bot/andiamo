@@ -57,6 +57,8 @@
     }
     .chapter.playing{background:#38761D; color:#fff;}
     .chapter.done{background:#9caf88; color:#1a1a1a;}
+    .chapter.started { background: #cfe3b4; color: #1a1a1a;}
+
 
     .row{display:flex; align-items:center; gap:12px;}
     .num{width:30px;height:30px;border-radius:999px;
@@ -350,16 +352,34 @@ if (Array.isArray(c.file)) {
             if (localStorage.getItem(listenedKey(otherCard.dataset.file)) === "1") otherCard.classList.add("done");
           }
         });
+        // Salva posizione ogni 5 secondi
+audio.addEventListener("timeupdate", () => {
+  if (!audio.paused) {
+    localStorage.setItem(`pos::${c.file}`, audio.currentTime);
+  }
+});
+
+// Riprendi la posizione salvata
+const savedTime = localStorage.getItem(`pos::${c.file}`);
+if (savedTime) {
+  audio.currentTime = parseFloat(savedTime);
+}
+
         card.classList.add("playing");
+        localStorage.setItem(`started::${c.file}`, "1"); card.classList.add("started");
+
       });
 
       audio.addEventListener("ended", () => {
         card.classList.remove("playing");
         localStorage.setItem(listenedKey(c.file), "1");
+        localStorage.removeItem(`pos::${c.file}`);
         card.classList.add("done");
       });
 
       if (localStorage.getItem(listenedKey(c.file)) === "1") card.classList.add("done");
+      else if (localStorage.getItem(`started::${c.file}`) === "1") card.classList.add("started");
+
 
       // download
       const dl = document.createElement("a");
