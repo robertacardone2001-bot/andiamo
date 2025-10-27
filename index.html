@@ -248,204 +248,219 @@
         : "Vedi commenti";
     }
 
-    chapters.forEach((c, i) => {
-      const card = document.createElement("div");
-      card.className = "chapter";
-      card.dataset.file = c.file;
+/* ---- blocco robusto per ogni capitolo: sostituisci qui il vecchio contenuto del forEach ---- */
+chapters.forEach((c, i) => {
+  const card = document.createElement("div");
+  card.className = "chapter";
+  card.dataset.title = c.title;
 
-      const top = document.createElement("div");
-      top.className = "row";
-      const num = document.createElement("span");
-      num.className = "num";
-      num.textContent = (i + 1).toString().padStart(2, "0");
-      const titleDiv = document.createElement("div");
-      titleDiv.className = "ctitle";
-      titleDiv.textContent = c.title;
-      top.append(num, titleDiv);
-      card.append(top);
+  // top (numero + titolo)
+  const top = document.createElement("div");
+  top.className = "row";
+  const num = document.createElement("span");
+  num.className = "num";
+  num.textContent = (i + 1).toString().padStart(2, "0");
+  const titleDiv = document.createElement("div");
+  titleDiv.className = "ctitle";
+  titleDiv.textContent = c.title;
+  top.append(num, titleDiv);
+  card.append(top);
 
-     // gestisce uno o più file audio
-if (Array.isArray(c.file)) {
-  c.file.forEach(f => {
+  // array che conterrà gli <audio> concreti di questo capitolo
+  const audioElements = [];
+
+  // funzione helper per creare un audio element per un file
+  function makeAudioElement(fileName, partIndex = 0) {
     const audio = document.createElement("audio");
     audio.controls = true;
     audio.preload = "none";
     const source = document.createElement("source");
-    source.src = `audio/${f}`;
+    source.src = `audio/${fileName}`;
     source.type = "audio/mpeg";
     audio.appendChild(source);
-    card.appendChild(audio);
-    audios.push(audio);
+    // attributo usabile per identificare la parte
+    audio.dataset.part = String(partIndex);
+    return audio;
+  }
+
+  // gestisce se c.file è array o singolo
+  if (Array.isArray(c.file)) {
+    c.file.forEach((f, idx) => {
+      const a = makeAudioElement(f, idx);
+      card.appendChild(a);
+      audios.push(a);          // array globale di tutti gli audio del sito
+      audioElements.push(a);   // array locale a questo capitolo
+    });
+  } else {
+    const a = makeAudioElement(c.file, 0);
+    card.appendChild(a);
+    audios.push(a);
+    audioElements.push(a);
+  }
+
+  // TIMER UI (il timer ferma TUTTI gli audio di questo capitolo)
+  const timerDiv = document.createElement("div");
+  timerDiv.style.marginTop = "10px";
+  const timerButton = document.createElement("button");
+  timerButton.textContent = "🕒 Imposta timer";
+  timerButton.style.marginRight = "10px";
+  const timerStatus = document.createElement("span");
+  timerStatus.style.fontSize = "13px";
+  timerStatus.style.fontStyle = "italic";
+  timerStatus.style.color = "#374619";
+  timerDiv.append(timerButton, timerStatus);
+  card.appendChild(timerDiv);
+
+  let sleepTimer = null;
+  let remainingSeconds = 0;
+
+  timerButton.addEventListener("click", () => {
+    const minutes = parseInt(prompt("Tra quanti minuti vuoi che l’audio si fermi? (es. 5, 10, 15)"));
+    if (isNaN(minutes) || minutes <= 0) { alert("Inserisci un numero valido di minuti!"); return; }
+    if (sleepTimer) clearInterval(sleepTimer);
+    remainingSeconds = minutes * 60;
+    updateTimerStatus();
+    sleepTimer = setInterval(() => {
+      remainingSeconds--;
+      updateTimerStatus();
+      if (remainingSeconds <= 0) {
+        clearInterval(sleepTimer);
+        // ferma tutti gli audio di questo capitolo
+        audioElements.forEach(a => a.pause());
+        timerStatus.textContent = "⏰ Timer terminato – buona notte 💫";
+      }
+    }, 1000);
   });
-} else {
-  const audio = document.createElement("audio");
-    audio.controls = true;
-    audio.preload = "none";
-    const source = document.createElement("source");
-    source.src = `audio/${c.file}`;
-    source.type = "audio/mpeg";
-    audio.appendChild(source);
-    card.appendChild(audio);
-    audios.push(audio);
-}
 
+  function updateTimerStatus() {
+    const m = Math.floor(remainingSeconds / 60);
+    const s = remainingSeconds % 60;
+    timerStatus.textContent = `L’audio si fermerà tra ${m}:${String(s).padStart(2,"0")}`;
+  }
 
-      // timer
-      const timerDiv = document.createElement("div");
-      timerDiv.style.marginTop = "10px";
-
-      const timerButton = document.createElement("button");
-      timerButton.textContent = "🕒 Imposta timer";
-      timerButton.style.background = "#556b2f";
-      timerButton.style.color = "#fff";
-      timerButton.style.border = "none";
-      timerButton.style.padding = "6px 12px";
-      timerButton.style.borderRadius = "8px";
-      timerButton.style.cursor = "pointer";
-      timerButton.style.marginRight = "10px";
-
-      const timerStatus = document.createElement("span");
-      timerStatus.style.fontSize = "13px";
-      timerStatus.style.fontStyle = "italic";
-      timerStatus.style.color = "#374619";
-
-      timerDiv.appendChild(timerButton);
-      timerDiv.appendChild(timerStatus);
-      card.appendChild(timerDiv);
-
-      let sleepTimer = null;
-      let remainingSeconds = 0;
-
-      timerButton.addEventListener("click", () => {
-        const minutes = parseInt(prompt("Tra quanti minuti vuoi che l’audio si fermi? (es. 5, 10, 15)"));
-        if (isNaN(minutes) || minutes <= 0) {
-          alert("Inserisci un numero valido di minuti!");
-          return;
-        }
-        if (sleepTimer) clearInterval(sleepTimer);
-        remainingSeconds = minutes * 60;
-        updateTimerStatus();
-        sleepTimer = setInterval(() => {
-          remainingSeconds--;
-          updateTimerStatus();
-          if (remainingSeconds <= 0) {
-            clearInterval(sleepTimer);
-            audio.pause();
-            timerStatus.textContent = "⏰ Timer terminato – buona notte 💫";
+  /* --- EVENT LISTENERS per ogni audio di questo capitolo --- */
+  audioElements.forEach((audio, idx) => {
+    // pausa gli altri audio del sito e gestisce classi
+    audio.addEventListener("play", () => {
+      audios.forEach(a => {
+        if (a !== audio) {
+          a.pause();
+          const otherCard = a.parentElement;
+          if (otherCard) {
+            otherCard.classList.remove("playing");
+            if (localStorage.getItem(listenedKey(otherCard.dataset.file || otherCard.dataset.title)) === "1") {
+              otherCard.classList.add("done");
+            }
           }
-        }, 1000);
+        }
       });
 
-      function updateTimerStatus() {
-        const minutesLeft = Math.floor(remainingSeconds / 60);
-        const secondsLeft = remainingSeconds % 60;
-        timerStatus.textContent = `L’audio si fermerà tra ${minutesLeft}:${secondsLeft.toString().padStart(2,"0")}`;
+      // riprendi posizione salvata per questa parte (se presente)
+      const saveKey = `pos::${c.title}::${idx}`;
+      const saved = localStorage.getItem(saveKey);
+      if (saved) {
+        try { audio.currentTime = parseFloat(saved); } catch(e){}
       }
 
-// play / ended — compatibile con uno o più file
-audioElements.forEach(audio => {
-  audio.addEventListener("play", () => {
-    // mette in pausa eventuali altri audio
-    audios.forEach(a => {
-      if (a !== audio) {
-        a.pause();
-        const otherCard = a.parentElement;
-        otherCard.classList.remove("playing");
-        if (localStorage.getItem(listenedKey(otherCard.dataset.file)) === "1")
-          otherCard.classList.add("done");
-      }
+      // salva posizione man mano (non troppo spesso)
+      let lastSave = 0;
+      audio.addEventListener("timeupdate", () => {
+        const now = Math.floor(audio.currentTime);
+        if (now !== lastSave && now % 5 === 0) { // salva ogni 5 secondi
+          localStorage.setItem(saveKey, audio.currentTime);
+          lastSave = now;
+        }
+      });
+
+      card.classList.add("playing");
+      localStorage.setItem(`started::${c.title}`, "1");
+      card.classList.add("started");
     });
 
-    // salva posizione ogni 5 secondi
-    audio.addEventListener("timeupdate", () => {
-      if (!audio.paused) {
-        localStorage.setItem(`pos::${c.title}::${audio.src}`, audio.currentTime);
+    // fine di una parte
+    audio.addEventListener("ended", () => {
+      // se tutte le parti sono finite, segna come ascoltato completo
+      const allEnded = audioElements.every(a => a.ended || a.currentTime > 0 && a.duration === a.currentTime);
+      if (allEnded) {
+        localStorage.setItem(listenedKey(c.title), "1");
+        card.classList.add("done");
+        // rimuove pos salvate per tutte le parti
+        audioElements.forEach((a2, idx2) => localStorage.removeItem(`pos::${c.title}::${idx2}`));
       }
+      card.classList.remove("playing");
     });
-
-    // riprende la posizione salvata
-    const savedTime = localStorage.getItem(`pos::${c.title}::${audio.src}`);
-    if (savedTime) {
-      audio.currentTime = parseFloat(savedTime);
-    }
-
-    // segna il capitolo come "iniziato"
-    card.classList.add("playing");
-    localStorage.setItem(`started::${c.title}`, "1");
-    card.classList.add("started");
   });
 
-  audio.addEventListener("ended", () => {
-    card.classList.remove("playing");
-    localStorage.setItem(listenedKey(c.title), "1");
-    localStorage.removeItem(`pos::${c.title}::${audio.src}`);
+  // applico stato "done/started" all'avvio
+  if (localStorage.getItem(listenedKey(c.title)) === "1") {
     card.classList.add("done");
-  });
-});
+  } else if (localStorage.getItem(`started::${c.title}`) === "1") {
+    card.classList.add("started");
+  }
 
-      if (localStorage.getItem(listenedKey(c.file)) === "1") card.classList.add("done");
-      else if (localStorage.getItem(`started::${c.file}`) === "1") card.classList.add("started");
-
-
-      // download
+  // DOWNLOAD (se ci sono più file mostro link per ogni file)
+  if (Array.isArray(c.file)) {
+    c.file.forEach(f => {
       const dl = document.createElement("a");
-      dl.href = `audio/${c.file}`;
-      dl.download = c.file;
-      dl.textContent = "Scarica";
+      dl.href = `audio/${f}`;
+      dl.download = f;
+      dl.textContent = `Scarica ${f}`;
+      dl.style.display = "inline-block";
+      dl.style.marginRight = "8px";
       dl.style.fontSize = "13px";
       card.appendChild(dl);
-
-      // comment box
-      const commentBox = document.createElement("div");
-      commentBox.className = "comment-box";
-      const textarea = document.createElement("textarea");
-      textarea.placeholder = "Scrivi un pensiero su questo capitolo...";
-      const saveBtn = document.createElement("button");
-      saveBtn.textContent = "Salva";
-      const toggleBtn = document.createElement("button");
-      toggleBtn.textContent = "Vedi commenti";
-      toggleBtn.style.marginLeft = "6px";
-      toggleBtn.style.background = "#a4b97f";
-      toggleBtn.style.color = "#2f3120";
-      const commentsList = document.createElement("div");
-      commentsList.className = "comments-list";
-      commentsList.style.display = "none";
-
-      toggleBtn.addEventListener("click", () => {
-        if (commentsList.style.display === "none") {
-          commentsList.style.display = "block";
-          toggleBtn.textContent = "Nascondi commenti";
-        } else {
-          commentsList.style.display = "none";
-          toggleBtn.textContent = commentsList.childElementCount > 0
-            ? `Vedi commenti (${commentsList.childElementCount})`
-            : "Vedi commenti";
-        }
-      });
-
-      saveBtn.addEventListener("click", async () => {
-        if (textarea.value.trim() === "") return;
-        try {
-          await addDoc(collection(db, "commenti"), {
-            capitolo: c.title,
-            testo: textarea.value,
-            timestamp: new Date()
-          });
-          textarea.value = "";
-          await loadCommentsFor(c.title, commentsList, toggleBtn);
-          commentsList.style.display = "block";
-          toggleBtn.textContent = "Nascondi commenti";
-        } catch (err) {
-          console.error("Errore salvataggio commento:", err);
-        }
-      });
-
-      loadCommentsFor(c.title, commentsList, toggleBtn);
-      commentBox.append(textarea, saveBtn, toggleBtn, commentsList);
-      card.appendChild(commentBox);
-
-      grid.appendChild(card);
     });
+  } else {
+    const dl = document.createElement("a");
+    dl.href = `audio/${c.file}`;
+    dl.download = c.file;
+    dl.textContent = "Scarica";
+    dl.style.fontSize = "13px";
+    card.appendChild(dl);
+  }
+
+  // COMMENTI (UI + salvataggio)
+  const commentBox = document.createElement("div"); commentBox.className = "comment-box";
+  const textarea = document.createElement("textarea"); textarea.placeholder = "Scrivi un pensiero su questo capitolo...";
+  const saveBtn = document.createElement("button"); saveBtn.textContent = "Salva";
+  const toggleBtn = document.createElement("button"); toggleBtn.textContent = "Vedi commenti";
+  toggleBtn.style.marginLeft = "6px"; toggleBtn.style.background = "#a4b97f"; toggleBtn.style.color = "#2f3120";
+  const commentsList = document.createElement("div"); commentsList.className = "comments-list"; commentsList.style.display = "none";
+
+  toggleBtn.addEventListener("click", () => {
+    if (commentsList.style.display === "none") {
+      commentsList.style.display = "block";
+      toggleBtn.textContent = "Nascondi commenti";
+    } else {
+      commentsList.style.display = "none";
+      toggleBtn.textContent = commentsList.childElementCount > 0 ? `Vedi commenti (${commentsList.childElementCount})` : "Vedi commenti";
+    }
+  });
+
+  saveBtn.addEventListener("click", async () => {
+    if (textarea.value.trim() === "") return;
+    try {
+      await addDoc(collection(db, "commenti"), { capitolo: c.title, testo: textarea.value, timestamp: new Date() });
+      textarea.value = "";
+      await loadCommentsFor(c.title, commentsList, toggleBtn);
+      commentsList.style.display = "block"; toggleBtn.textContent = "Nascondi commenti";
+    } catch (err) {
+      console.error("Errore salvataggio commento:", err);
+      alert("Errore salvataggio commento (vedi console).");
+    }
+  });
+
+  // carica commenti iniziali
+  loadCommentsFor(c.title, commentsList, toggleBtn);
+
+  commentBox.append(textarea, saveBtn, toggleBtn, commentsList);
+  card.appendChild(commentBox);
+
+  // append finale
+  grid.appendChild(card);
+});
+/* ---- fine blocco ---- */
+
 
   </script>
 
