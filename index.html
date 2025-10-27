@@ -342,40 +342,46 @@ if (Array.isArray(c.file)) {
         timerStatus.textContent = `L’audio si fermerà tra ${minutesLeft}:${secondsLeft.toString().padStart(2,"0")}`;
       }
 
-      // play / ended
-      audio.addEventListener("play", () => {
-        audios.forEach(a => {
-          if (a !== audio) {
-            a.pause();
-            const otherCard = a.parentElement;
-            otherCard.classList.remove("playing");
-            if (localStorage.getItem(listenedKey(otherCard.dataset.file)) === "1") otherCard.classList.add("done");
-          }
-        });
-        // Salva posizione ogni 5 secondi
-audio.addEventListener("timeupdate", () => {
-  if (!audio.paused) {
-    localStorage.setItem(`pos::${c.file}`, audio.currentTime);
-  }
+// play / ended — compatibile con uno o più file
+audioElements.forEach(audio => {
+  audio.addEventListener("play", () => {
+    // mette in pausa eventuali altri audio
+    audios.forEach(a => {
+      if (a !== audio) {
+        a.pause();
+        const otherCard = a.parentElement;
+        otherCard.classList.remove("playing");
+        if (localStorage.getItem(listenedKey(otherCard.dataset.file)) === "1")
+          otherCard.classList.add("done");
+      }
+    });
+
+    // salva posizione ogni 5 secondi
+    audio.addEventListener("timeupdate", () => {
+      if (!audio.paused) {
+        localStorage.setItem(`pos::${c.title}::${audio.src}`, audio.currentTime);
+      }
+    });
+
+    // riprende la posizione salvata
+    const savedTime = localStorage.getItem(`pos::${c.title}::${audio.src}`);
+    if (savedTime) {
+      audio.currentTime = parseFloat(savedTime);
+    }
+
+    // segna il capitolo come "iniziato"
+    card.classList.add("playing");
+    localStorage.setItem(`started::${c.title}`, "1");
+    card.classList.add("started");
+  });
+
+  audio.addEventListener("ended", () => {
+    card.classList.remove("playing");
+    localStorage.setItem(listenedKey(c.title), "1");
+    localStorage.removeItem(`pos::${c.title}::${audio.src}`);
+    card.classList.add("done");
+  });
 });
-
-// Riprendi la posizione salvata
-const savedTime = localStorage.getItem(`pos::${c.file}`);
-if (savedTime) {
-  audio.currentTime = parseFloat(savedTime);
-}
-
-        card.classList.add("playing");
-        localStorage.setItem(`started::${c.file}`, "1"); card.classList.add("started");
-
-      });
-
-      audio.addEventListener("ended", () => {
-        card.classList.remove("playing");
-        localStorage.setItem(listenedKey(c.file), "1");
-        localStorage.removeItem(`pos::${c.file}`);
-        card.classList.add("done");
-      });
 
       if (localStorage.getItem(listenedKey(c.file)) === "1") card.classList.add("done");
       else if (localStorage.getItem(`started::${c.file}`) === "1") card.classList.add("started");
