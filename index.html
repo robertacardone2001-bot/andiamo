@@ -215,7 +215,7 @@
       { title: "Capitolo 7", file: "07-Capitolo-7.mp3" },
       { title: "Capitolo 8", file: "08-Capitolo-8.mp3" },
       { title: "Capitolo 9", file: "09-Capitolo-9.mp3" },
-      { title: "Capitolo 10", file: "10-Capitolo-10.mp3" }
+      { title: "Capitolo 10", file: "10-Capitolo-10-parte-1.mp3", "10-Capitolo-10-parte-2.mp3" }
     ];
 
     const grid = document.getElementById("chapters");
@@ -262,16 +262,31 @@
       top.append(num, titleDiv);
       card.append(top);
 
-      // audio
-      const audio = document.createElement("audio");
-      audio.controls = true;
-      audio.preload = "none";
-      const source = document.createElement("source");
-      source.src = `audio/${c.file}`;
-      source.type = "audio/mpeg";
-      audio.appendChild(source);
-      card.appendChild(audio);
-      audios.push(audio);
+     // gestisce uno o più file audio
+if (Array.isArray(c.file)) {
+  c.file.forEach(f => {
+    const audio = document.createElement("audio");
+    audio.controls = true;
+    audio.preload = "none";
+    const source = document.createElement("source");
+    source.src = `audio/${f}`;
+    source.type = "audio/mpeg";
+    audio.appendChild(source);
+    card.appendChild(audio);
+    audios.push(audio);
+  });
+} else {
+  const audio = document.createElement("audio");
+    audio.controls = true;
+    audio.preload = "none";
+    const source = document.createElement("source");
+    source.src = `audio/${c.file}`;
+    source.type = "audio/mpeg";
+    audio.appendChild(source);
+    card.appendChild(audio);
+    audios.push(audio);
+}
+
 
       // timer
       const timerDiv = document.createElement("div");
