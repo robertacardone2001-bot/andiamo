@@ -297,6 +297,28 @@ chapters.forEach((c, i) => {
   } else {
     const a = makeAudioElement(c.file, 0);
     card.appendChild(a);
+    // --- CONTROLLI FAST FORWARD / REWIND ---
+const skip = parseInt(localStorage.getItem("settings::skip") || "10");
+
+const controlsDiv = document.createElement("div");
+controlsDiv.style.display = "flex";
+controlsDiv.style.gap = "10px";
+controlsDiv.style.margin = "8px 0";
+
+const backBtn = document.createElement("button");
+backBtn.textContent = `⏪ -${skip}s`;
+backBtn.style.padding = "6px 10px";
+
+const fwdBtn = document.createElement("button");
+fwdBtn.textContent = `⏩ +${skip}s`;
+fwdBtn.style.padding = "6px 10px";
+
+controlsDiv.append(backBtn, fwdBtn);
+card.appendChild(controlsDiv);
+
+backBtn.onclick = () => audio.currentTime = Math.max(0, audio.currentTime - skip);
+fwdBtn.onclick = () => audio.currentTime = Math.min(audio.duration, audio.currentTime + skip);
+
     audios.push(a);
     audioElements.push(a);
   }
@@ -317,23 +339,29 @@ chapters.forEach((c, i) => {
   let sleepTimer = null;
   let remainingSeconds = 0;
 
-  timerButton.addEventListener("click", () => {
-    const minutes = parseInt(prompt("Tra quanti minuti vuoi che l’audio si fermi? (es. 5, 10, 15)"));
-    if (isNaN(minutes) || minutes <= 0) { alert("Inserisci un numero valido di minuti!"); return; }
-    if (sleepTimer) clearInterval(sleepTimer);
-    remainingSeconds = minutes * 60;
+ timerButton.addEventListener("click", () => {
+  const minutes = parseInt(localStorage.getItem("settings::timer") || "");
+  if (isNaN(minutes) || minutes <= 0) {
+    alert("Imposta un timer nelle impostazioni!");
+    return;
+  }
+  if (sleepTimer) clearInterval(sleepTimer);
+
+  remainingSeconds = minutes * 60;
+  updateTimerStatus();
+
+  sleepTimer = setInterval(() => {
+    remainingSeconds--;
     updateTimerStatus();
-    sleepTimer = setInterval(() => {
-      remainingSeconds--;
-      updateTimerStatus();
-      if (remainingSeconds <= 0) {
-        clearInterval(sleepTimer);
-        // ferma tutti gli audio di questo capitolo
-        audioElements.forEach(a => a.pause());
-        timerStatus.textContent = "⏰ Timer terminato – buona notte 💫";
-      }
-    }, 1000);
-  });
+
+    if (remainingSeconds <= 0) {
+      clearInterval(sleepTimer);
+      audioElements.forEach(a => a.pause());
+      timerStatus.textContent = "⏰ Timer terminato – buona notte 💫";
+    }
+  }, 1000);
+});
+
 
   function updateTimerStatus() {
     const m = Math.floor(remainingSeconds / 60);
