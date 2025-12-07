@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <title>Impostazioni</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 20px;
+      max-width: 600px;
+      margin: auto;
+    }
+    h1 { margin-bottom: 20px; }
+    .setting {
+      background: #f5f5f5;
+      padding: 15px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+    }
+    label {
+      font-weight: bold;
+      display: block;
+      margin-bottom: 8px;
+    }
+    select, input[type="checkbox"] {
+      margin-top: 6px;
+    }
+  </style>
+</head>
+<body>
+
+<h1>Impostazioni</h1>
+
+<!-- SALTO AVANTI/INDIETRO -->
+<div class="setting">
+  <label for="skipTime">Salto avanti/indietro</label>
+  <select id="skipTime">
+    <option value="5">5 secondi</option>
+    <option value="10" selected>10 secondi</option>
+    <option value="15">15 secondi</option>
+  </select>
+</div>
+
+<!-- RIPRENDI DA DOVE HAI LASCIATO -->
+<div class="setting">
+  <label for="resumeToggle">Riprendi da dove hai lasciato</label>
+  <input type="checkbox" id="resumeToggle"> Attiva
+</div>
+
+<!-- TIMER DI SPEGNIMENTO -->
+<div class="setting">
+  <label for="sleepTimer">Timer di spegnimento</label>
+  <select id="sleepTimer">
+    <option value="0">Nessun timer</option>
+    <option value="10">10 minuti</option>
+    <option value="20">20 minuti</option>
+    <option value="30">30 minuti</option>
+    <option value="45">45 minuti</option>
+    <option value="60">60 minuti</option>
+  </select>
+</div>
+
+<!-- STATISTICHE -->
+<div class="setting">
+  <h3>Statistiche</h3>
+  <p><strong>Tempo totale ascoltato:</strong> <span id="statTime">0 min</span></p>
+  <p><strong>Capitoli completati:</strong> <span id="statCompleted">0</span></p>
+  <p><strong>Ultimo capitolo ascoltato:</strong> <span id="statLast">–</span></p>
+  <button id="resetStats">Reset statistiche</button>
+</div>
+
+<script>
+// -------------------------
+// CARICA IMPOSTAZIONI
+// -------------------------
+document.getElementById("skipTime").value =
+  localStorage.getItem("skipTime") || "10";
+
+document.getElementById("sleepTimer").value =
+  localStorage.getItem("sleepTimer") || "0";
+
+document.getElementById("resumeToggle").checked =
+  localStorage.getItem("resumeEnabled") === "true";
+
+// -------------------------
+// SALVATAGGIO IMPOSTAZIONI
+// -------------------------
+document.getElementById("skipTime").addEventListener("change", e => {
+  localStorage.setItem("skipTime", e.target.value);
+});
+
+document.getElementById("sleepTimer").addEventListener("change", e => {
+  localStorage.setItem("sleepTimer", e.target.value);
+});
+
+document.getElementById("resumeToggle").addEventListener("change", e => {
+  localStorage.setItem("resumeEnabled", e.target.checked);
+});
+
+// -------------------------
+// STATISTICHE
+// -------------------------
+function loadStats() {
+  const totalTime = localStorage.getItem("stats_totalTime") || 0;
+  const completed = localStorage.getItem("stats_completed") || 0;
+  const last = localStorage.getItem("stats_lastChapter") || "–";
+
+  document.getElementById("statTime").innerText = Math.floor(totalTime / 60) + " min";
+  document.getElementById("statCompleted").innerText = completed;
+  document.getElementById("statLast").innerText = last;
+}
+
+document.getElementById("resetStats").addEventListener("click", () => {
+  localStorage.setItem("stats_totalTime", 0);
+  localStorage.setItem("stats_completed", 0);
+  localStorage.setItem("stats_lastChapter", "–");
+  loadStats();
+});
+
+loadStats();
+
+</script>
+
+</body>
+</html>
