@@ -1,124 +1,112 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="it">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Impostazioni</title>
+
   <style>
     body {
-      font-family: sans-serif;
+      font-family: Inter, sans-serif;
+      background: #f4f4eb;
       padding: 20px;
-      max-width: 600px;
-      margin: auto;
+      color: #2f3120;
     }
-    h1 { margin-bottom: 20px; }
+    h1 { font-size: 26px; margin-bottom: 10px; }
+
     .setting {
-      background: #f5f5f5;
-      padding: 15px;
-      border-radius: 10px;
-      margin-bottom: 20px;
+      background: #fff;
+      padding: 16px;
+      border-radius: 12px;
+      margin-top: 15px;
+      border: 1px solid #d6dec1;
     }
-    label {
-      font-weight: bold;
-      display: block;
-      margin-bottom: 8px;
+    label { display:block; margin-bottom:6px; font-weight:600; }
+    select, input {
+      padding: 8px;
+      width: 100%;
+      border-radius: 8px;
+      border: 1px solid #aaa;
+      font-size: 15px;
     }
-    select, input[type="checkbox"] {
-      margin-top: 6px;
+    button {
+      margin-top: 10px;
+      padding: 8px 14px;
+      background: #6b8e23;
+      border: none;
+      border-radius: 8px;
+      color: #fff;
+      cursor: pointer;
     }
+    button:hover { background:#556b2f; }
   </style>
 </head>
+
 <body>
 
-<h1>Impostazioni</h1>
+  <h1>⚙️ Impostazioni</h1>
 
-<!-- SALTO AVANTI/INDIETRO -->
-<div class="setting">
-  <label for="skipTime">Salto avanti/indietro</label>
-  <select id="skipTime">
-    <option value="5">5 secondi</option>
-    <option value="10" selected>10 secondi</option>
-    <option value="15">15 secondi</option>
-  </select>
-</div>
+  <!-- SKIP -->
+  <div class="setting">
+    <label>Quanto vuoi andare avanti/indietro alla volta?</label>
+    <select id="skipSelect">
+      <option value="5">5 secondi</option>
+      <option value="10">10 secondi</option>
+      <option value="15">15 secondi</option>
+      <option value="30">30 secondi</option>
+    </select>
+    <button onclick="saveSkip()">Salva</button>
+  </div>
 
-<!-- RIPRENDI DA DOVE HAI LASCIATO -->
-<div class="setting">
-  <label for="resumeToggle">Riprendi da dove hai lasciato</label>
-  <input type="checkbox" id="resumeToggle"> Attiva
-</div>
+  <!-- TIMER -->
+  <div class="setting">
+    <label>Timer di spegnimento (minuti)</label>
+    <input type="number" id="timerInput" min="1" placeholder="Esempio: 10">
+    <button onclick="saveTimer()">Salva</button>
+  </div>
 
-<!-- TIMER DI SPEGNIMENTO -->
-<div class="setting">
-  <label for="sleepTimer">Timer di spegnimento</label>
-  <select id="sleepTimer">
-    <option value="0">Nessun timer</option>
-    <option value="10">10 minuti</option>
-    <option value="20">20 minuti</option>
-    <option value="30">30 minuti</option>
-    <option value="45">45 minuti</option>
-    <option value="60">60 minuti</option>
-  </select>
-</div>
-
-<!-- STATISTICHE -->
-<div class="setting">
-  <h3>Statistiche</h3>
-  <p><strong>Tempo totale ascoltato:</strong> <span id="statTime">0 min</span></p>
-  <p><strong>Capitoli completati:</strong> <span id="statCompleted">0</span></p>
-  <p><strong>Ultimo capitolo ascoltato:</strong> <span id="statLast">–</span></p>
-  <button id="resetStats">Reset statistiche</button>
-</div>
+  <!-- STATISTICHE -->
+  <div class="setting">
+    <label>Statistiche</label>
+    <p id="statsBox">Caricamento...</p>
+  </div>
 
 <script>
-// -------------------------
-// CARICA IMPOSTAZIONI
-// -------------------------
-document.getElementById("skipTime").value =
-  localStorage.getItem("skipTime") || "10";
+  // Carica i valori all’apertura della pagina
+  window.onload = () => {
+    document.getElementById("skipSelect").value =
+      localStorage.getItem("settings::skip") || 10;
 
-document.getElementById("sleepTimer").value =
-  localStorage.getItem("sleepTimer") || "0";
+    const timer = localStorage.getItem("settings::timer");
+    if (timer) document.getElementById("timerInput").value = timer;
 
-document.getElementById("resumeToggle").checked =
-  localStorage.getItem("resumeEnabled") === "true";
+    loadStats();
+  };
 
-// -------------------------
-// SALVATAGGIO IMPOSTAZIONI
-// -------------------------
-document.getElementById("skipTime").addEventListener("change", e => {
-  localStorage.setItem("skipTime", e.target.value);
-});
+  function saveSkip() {
+    const v = document.getElementById("skipSelect").value;
+    localStorage.setItem("settings::skip", v);
+    alert("Impostazione salvata!");
+  }
 
-document.getElementById("sleepTimer").addEventListener("change", e => {
-  localStorage.setItem("sleepTimer", e.target.value);
-});
+  function saveTimer() {
+    const v = document.getElementById("timerInput").value;
+    if (!v || v <= 0) return alert("Inserisci un valore valido!");
+    localStorage.setItem("settings::timer", v);
+    alert("Timer salvato!");
+  }
 
-document.getElementById("resumeToggle").addEventListener("change", e => {
-  localStorage.setItem("resumeEnabled", e.target.checked);
-});
+  function loadStats() {
+    const done = Object.keys(localStorage)
+      .filter(k => k.startsWith("listened::")).length;
 
-// -------------------------
-// STATISTICHE
-// -------------------------
-function loadStats() {
-  const totalTime = localStorage.getItem("stats_totalTime") || 0;
-  const completed = localStorage.getItem("stats_completed") || 0;
-  const last = localStorage.getItem("stats_lastChapter") || "–";
+    const started = Object.keys(localStorage)
+      .filter(k => k.startsWith("started::")).length;
 
-  document.getElementById("statTime").innerText = Math.floor(totalTime / 60) + " min";
-  document.getElementById("statCompleted").innerText = completed;
-  document.getElementById("statLast").innerText = last;
-}
-
-document.getElementById("resetStats").addEventListener("click", () => {
-  localStorage.setItem("stats_totalTime", 0);
-  localStorage.setItem("stats_completed", 0);
-  localStorage.setItem("stats_lastChapter", "–");
-  loadStats();
-});
-
-loadStats();
-
+    document.getElementById("statsBox").innerHTML =
+      `Capitoli completati: <b>${done}</b><br>
+       Capitoli iniziati: <b>${started}</b>`;
+  }
 </script>
 
 </body>
