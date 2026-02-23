@@ -315,8 +315,7 @@ chapters.forEach((c, i) => {
     const a = makeAudioElement(c.file, 0);
     card.appendChild(a);
     // --- CONTROLLI FAST FORWARD / REWIND ---
-const skip = parseInt(localStorage.getItem("settings::skip") || "10");
-
+const skip = Number(localStorage.getItem("skipSeconds")) || 10;
 const controlsDiv = document.createElement("div");
 controlsDiv.style.display = "flex";
 controlsDiv.style.gap = "10px";
